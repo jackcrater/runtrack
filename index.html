@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUNTRACK — Lewis's Running Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050507;
+    --bg2: #0c0c10;
+    --bg3: #111116;
+    --border: #1c1c24;
+    --border2: #26263a;
+    --navy: #0a1628;
+    --navy2: #0d1f3c;
+    --navy3: #1a3561;
+    --navy-bright: #1e4d8c;
+    --accent: #2563eb;
+    --accent-glow: rgba(37,99,235,0.3);
+    --accent2: #3b82f6;
+    --accent3: #60a5fa;
+    --red: #ef4444;
+    --gold: #f59e0b;
+    --green: #22c55e;
+    --text: #f0f0f5;
+    --text2: #8888a8;
+    --text3: #444460;
+    --card-radius: 14px;
+    --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* LOADING */
+  #app-loading {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999; gap: 20px;
+  }
+  #app-loading .loading-logo {
+    font-size: 36px; font-weight: 900; letter-spacing: 8px; color: var(--accent2);
+    text-transform: uppercase;
+  }
+  #app-loading .loading-sub { font-size: 12px; color: var(--text3); letter-spacing: 3px; }
+  .spinner {
+    width: 36px; height: 36px; border: 2px solid var(--border2);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #app-content { display: none; }
+
+  /* HEADER */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,5,7,0.95);
+    backdrop-filter: blur(16px);
+  }
+  .logo { display: flex; flex-direction: column; gap: 2px; }
+  .logo-name {
+    font-size: 20px; font-weight: 900; letter-spacing: 6px;
+    text-transform: uppercase; color: var(--accent2);
+  }
+  .logo-sub {
+    font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--text3);
+    text-transform: uppercase;
+  }
+  .header-right { display: flex; gap: 10px; align-items: center; }
+  .sync-status {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px;
+    color: var(--text3); display: flex; align-items: center; gap: 6px;
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
+  .sync-dot.synced { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .sync-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .btn {
+    padding: 8px 18px; border-radius: 8px; border: none;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: var(--transition); letter-spacing: 1px; text-transform: uppercase;
+  }
+  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 24px var(--accent-glow); }
+  .btn-danger { background: transparent; border: 1px solid var(--border2); color: var(--red); }
+  .btn-danger:hover { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+  /* NAV TABS */
+  .nav-tabs {
+    display: flex; gap: 0; padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto; scrollbar-width: none;
+    background: var(--bg);
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 14px 20px; font-size: 11px; font-weight: 700; color: var(--text3);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: var(--transition); white-space: nowrap; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+
+  /* MAIN */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* SECTION HEADERS */
+  .section-heading {
+    font-size: 11px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent3); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-heading::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* GRID */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+  .grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 20px; }
+  .grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 900px) {
+    .grid-4,.grid-3 { grid-template-columns: repeat(2,1fr); }
+    .grid-2,.grid-12,.grid-21 { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+  @media (max-width: 520px) {
+    .main { padding: 16px; }
+    .header { padding: 14px 16px; }
+    .nav-tabs { padding: 0 16px; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 22px;
+    transition: border-color var(--transition);
+  }
+  .card:hover { border-color: var(--border2); }
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 10px;
+  }
+  .card-value {
+    font-size: 42px; font-weight: 900; color: var(--text);
+    line-height: 1; letter-spacing: -2px;
+  }
+  .card-value.navy { color: var(--accent3); }
+  .card-sub { font-size: 11px; color: var(--text3); margin-top: 8px; }
+  .card-title {
+    font-size: 11px; font-weight: 800; color: var(--text);
+    margin-bottom: 18px; letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* STAT CARDS */
+  .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+
+  /* HEATMAP */
+  .heatmap-scroll { overflow-x: auto; padding-bottom: 4px; }
+  .heatmap-scroll::-webkit-scrollbar { height: 3px; }
+  .heatmap-scroll::-webkit-scrollbar-track { background: var(--bg3); }
+  .heatmap-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .heatmap-cell {
+    width: 13px; height: 13px; border-radius: 3px;
+    background: var(--bg3);
+    cursor: pointer; transition: transform var(--transition);
+    flex-shrink: 0;
+  }
+  .heatmap-cell:hover { transform: scale(1.35); }
+  .heatmap-cell.run { background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
+  .heatmap-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); width: 20px; text-align: right; flex-shrink: 0; }
+
+  /* CHART */
+  .chart-container { position: relative; width: 100%; }
+  canvas { width: 100% !important; }
+
+  /* PB BADGES */
+  .pb-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(245,158,11,0.1); color: var(--gold);
+    border: 1px solid rgba(245,158,11,0.25); border-radius: 4px;
+    padding: 2px 8px; font-size: 9px; font-family: 'DM Mono', monospace;
+    font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  /* FORM */
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .form-input, .form-select {
+    background: var(--bg3); border: 1px solid var(--border2);
+    color: var(--text); border-radius: 8px; padding: 11px 14px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    transition: border-color var(--transition); outline: none; width: 100%;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  .form-select option { background: var(--bg2); }
+  .form-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .auto-calc-display {
+    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--accent2);
+    padding: 11px 14px; background: rgba(37,99,235,0.06);
+    border: 1px solid rgba(37,99,235,0.2); border-radius: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* RUNS TABLE */
+  .runs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .runs-table th {
+    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
+    letter-spacing: 2px; text-transform: uppercase; padding: 10px 14px;
+    text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .runs-table td { padding: 13px 14px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
+  .runs-table tr:last-child td { border-bottom: none; }
+  .runs-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .dist-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: 1px;
+  }
+  .dist-1km { background: rgba(96,165,250,0.12); color: #60a5fa; }
+  .dist-2km { background: rgba(37,99,235,0.15); color: #3b82f6; }
+  .dist-3km { background: rgba(245,158,11,0.12); color: var(--gold); }
+  .dist-5km { background: rgba(239,68,68,0.12); color: var(--red); }
+  .dist-10km { background: rgba(34,197,94,0.12); color: var(--green); }
+  .dist-custom { background: rgba(168,85,247,0.12); color: #a855f7; }
+  .delete-btn {
+    background: none; border: none; color: var(--text3); cursor: pointer;
+    padding: 4px 8px; border-radius: 6px; font-size: 14px; transition: var(--transition);
+  }
+  .delete-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  /* PB LIST */
+  .pb-list { display: flex; flex-direction: column; gap: 12px; }
+  .pb-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px; background: var(--bg3);
+    border-radius: 10px; border: 1px solid var(--border);
+    transition: border-color var(--transition);
+  }
+  .pb-row:hover { border-color: var(--border2); }
+  .pb-dist { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; margin-bottom: 4px; }
+  .pb-time { font-size: 26px; font-weight: 900; color: var(--text); letter-spacing: -1px; line-height: 1; }
+  .pb-pace { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .pb-date { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-icon { font-size: 44px; margin-bottom: 14px; }
+  .empty p { font-size: 13px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px); z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 16px; padding: 32px; width: 100%;
+    max-width: 500px; margin: 20px;
+  }
+  .modal-title {
+    font-size: 20px; font-weight: 900; margin-bottom: 24px;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text);
+  }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+
+  /* TOOLTIP */
+  .tooltip-wrap { position: relative; }
+  .tooltip-wrap .tt {
+    position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+    background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+    font-size: 10px; padding: 5px 10px; border-radius: 6px; white-space: nowrap;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 10;
+    font-family: 'DM Mono', monospace;
+  }
+  .tooltip-wrap:hover .tt { opacity: 1; }
+
+  /* PACE CALC */
+  .pace-calc { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
+  .pace-result {
+    font-size: 40px; font-weight: 900; color: var(--accent2);
+    margin-top: 14px; letter-spacing: -1px;
+  }
+  .pace-result-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed; bottom: 28px; right: 28px; background: var(--bg2);
+    border: 1px solid var(--accent); border-radius: 12px;
+    padding: 16px 22px; font-size: 13px; z-index: 999;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1); max-width: 300px;
+    box-shadow: 0 8px 32px var(--accent-glow);
+  }
+  .notif.show { transform: translateY(0); opacity: 1; }
+  .notif-title { font-weight: 700; color: var(--accent2); margin-bottom: 3px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* SECTION DIVIDER */
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+
+  /* BENCHMARK CARD */
+  .benchmark-table { width: 100%; border-collapse: collapse; }
+  .benchmark-table th {
+    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
+    letter-spacing: 2px; text-transform: uppercase; padding: 8px 12px;
+    text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .benchmark-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .benchmark-table tr:last-child td { border-bottom: none; }
+  .bm-level { display: flex; align-items: center; gap: 8px; }
+  .bm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .pace-compare-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 6px; position: relative; overflow: visible; }
+  .pace-compare-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.6s ease; }
+  .pace-compare-you { position: absolute; top: -4px; width: 12px; height: 12px; border-radius: 50%; background: white; border: 2px solid var(--accent); transform: translateX(-50%); transition: left 0.6s ease; }
+  .info-card { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .info-card-title { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent3); margin-bottom: 8px; }
+  .info-card p { font-size: 12px; color: var(--text2); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="app-loading">
+  <div class="loading-logo">RUNTRACK</div>
+  <div class="loading-sub">Lewis's Running Dashboard</div>
+  <div class="spinner"></div>
+</div>
+
+<!-- APP CONTENT -->
+<div id="app-content">
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-name">RUNTRACK</div>
+    <div class="logo-sub">Lewis's Running Dashboard</div>
+  </div>
+  <div class="header-right">
+    <div class="sync-status">
+      <div class="sync-dot synced" id="sync-dot"></div>
+      <span id="sync-label">SYNCED</span>
+    </div>
+    <button class="btn btn-outline" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn btn-primary" onclick="openLogModal()">+ LOG RUN</button>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="tab active" onclick="showPage('dashboard',this)">Dashboard</div>
+  <div class="tab" onclick="showPage('history',this)">History</div>
+  <div class="tab" onclick="showPage('pbs',this)">Personal Bests</div>
+  <div class="tab" onclick="showPage('analysis',this)">Analysis</div>
+  <div class="tab" onclick="showPage('benchmarks',this)">Benchmarks</div>
+  <div class="tab" onclick="showPage('calculator',this)">Calculator</div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="stat-grid" id="stat-grid"></div>
+    <div class="grid-21">
+      <div class="card">
+        <div class="card-title">Pace Trend <span style="font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0"> (min/km)</span></div>
+        <div class="chart-container" style="height:200px"><canvas id="paceChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Distance Breakdown</div>
+        <div class="chart-container" style="height:200px"><canvas id="distChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Activity Heatmap <span style="font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0"> — last 52 weeks · blue = ran</span></div>
+      <div class="heatmap-scroll"><div id="heatmap-container"></div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Weekly Volume <span style="font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0"> (km, last 8 weeks)</span></div>
+        <div class="chart-container" style="height:140px"><canvas id="weeklyChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Personal Bests</div>
+        <div id="pb-summary" class="pb-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="page" id="page-history">
+    <div class="card" style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+        <div class="card-title" style="margin-bottom:0">All Runs</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="form-select" style="width:auto;padding:7px 12px;font-size:11px" id="filter-dist" onchange="renderHistory()">
+            <option value="">All distances</option>
+            <option value="1">1km</option>
+            <option value="2">2km</option>
+            <option value="3">3km</option>
+            <option value="5">5km</option>
+            <option value="10">10km</option>
+            <option value="custom">Custom</option>
+          </select>
+          <select class="form-select" style="width:auto;padding:7px 12px;font-size:11px" id="filter-form" onchange="renderHistory()">
+            <option value="">All terrain</option>
+            <option value="Road">Road</option>
+            <option value="Trail">Trail</option>
+            <option value="Track">Track</option>
+            <option value="Treadmill">Treadmill</option>
+          </select>
+          <select class="form-select" style="width:auto;padding:7px 12px;font-size:11px" id="sort-runs" onchange="renderHistory()">
+            <option value="date-desc">Newest first</option>
+            <option value="date-asc">Oldest first</option>
+            <option value="pace-asc">Fastest pace</option>
+            <option value="dist-desc">Longest first</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="runs-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Distance</th><th>Time</th><th>Pace</th><th>Terrain</th><th>Notes</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PBS -->
+  <div class="page" id="page-pbs">
+    <div class="grid-2">
+      <div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-title">Personal Records</div>
+          <div id="pb-full-list" class="pb-list"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-title">Best Pace by Distance</div>
+          <div class="chart-container" style="height:220px"><canvas id="pbChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">PB Timeline</div>
+          <div id="pb-timeline"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS -->
+  <div class="page" id="page-analysis">
+    <div class="stat-grid" id="analysis-stats"></div>
+    <div class="grid-2">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Runs per Day of Week</div>
+        <div class="chart-container" style="height:200px"><canvas id="dowChart"></canvas></div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Pace by Terrain</div>
+        <div class="chart-container" style="height:200px"><canvas id="terrainChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cumulative Distance Over Time</div>
+      <div class="chart-container" style="height:200px"><canvas id="cumulChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BENCHMARKS -->
+  <div class="page" id="page-benchmarks">
+    <div class="section-heading">How You Stack Up</div>
+    <div id="benchmark-content"></div>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="page" id="page-calculator">
+    <div class="grid-2">
+      <div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-title">Pace Calculator</div>
+          <div class="pace-calc">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label class="form-label">Distance (km)</label>
+                <input type="number" class="form-input" id="calc-dist" placeholder="5" step="0.1" oninput="calcPace()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Time (mm:ss)</label>
+                <input type="text" class="form-input" id="calc-time" placeholder="25:00" oninput="calcPace()">
+              </div>
+            </div>
+            <div id="calc-result" style="margin-top:16px"></div>
+          </div>
+          <hr class="section-divider">
+          <div class="card-title">Target Time Calculator</div>
+          <div class="pace-calc">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label class="form-label">Distance (km)</label>
+                <input type="number" class="form-input" id="target-dist" placeholder="5" step="0.1" oninput="calcTarget()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Pace (mm:ss/km)</label>
+                <input type="text" class="form-input" id="target-pace" placeholder="05:00" oninput="calcTarget()">
+              </div>
+            </div>
+            <div id="target-result" style="margin-top:16px"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Pace Zones Reference</div>
+          <div id="pace-zones"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app-content -->
+
+<!-- LOG RUN MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">Log a Run</div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input" id="run-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Distance</label>
+          <select class="form-select" id="run-dist" onchange="updatePaceCalc();toggleCustomDist()">
+            <option value="1">1 km</option>
+            <option value="2">2 km</option>
+            <option value="3" selected>3 km</option>
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" id="custom-dist-group" style="display:none">
+        <label class="form-label">Custom Distance (km)</label>
+        <input type="number" class="form-input" id="run-custom-dist" placeholder="e.g. 7.5" step="0.1" min="0.1" oninput="updatePaceCalc()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time <span style="color:var(--text3)">mm:ss or h:mm:ss</span></label>
+        <input type="text" class="form-input" id="run-time" placeholder="e.g. 13:20" oninput="updatePaceCalc()">
+        <div class="form-note">Format: mm:ss (e.g. 13:20) or h:mm:ss for longer runs</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Auto-calculated Pace</label>
+        <div class="auto-calc-display" id="auto-pace"><span style="opacity:0.4">Enter distance and time above</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Terrain</label>
+        <select class="form-select" id="run-form">
+          <option value="Road">Road</option>
+          <option value="Trail">Trail</option>
+          <option value="Track">Track</option>
+          <option value="Treadmill">Treadmill</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes <span style="color:var(--text3)">(optional)</span></label>
+        <input type="text" class="form-input" id="run-notes" placeholder="How did it feel?">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRun()">Save Run</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <div class="notif-title" id="notif-title"></div>
+  <div id="notif-body" style="color:var(--text2);font-size:12px"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9INp65mXAcV5DHXqrYok0XpmgcdVmr9M",
+    authDomain: "runtrack-a84fb.firebaseapp.com",
+    projectId: "runtrack-a84fb",
+    storageBucket: "runtrack-a84fb.firebasestorage.app",
+    messagingSenderId: "69596972002",
+    appId: "1:69596972002:web:d2a481123c0218ec10afbb",
+    measurementId: "G-5SHBP3D9WM"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const runsCol = collection(db, "runs");
+
+  function setSyncStatus(state) {
+    const dot = document.getElementById('sync-dot');
+    const label = document.getElementById('sync-label');
+    if (state === 'synced') { dot.className='sync-dot synced'; label.textContent='SYNCED'; }
+    else if (state === 'syncing') { dot.className='sync-dot syncing'; label.textContent='SYNCING…'; }
+    else { dot.className='sync-dot'; label.textContent='OFFLINE'; }
+  }
+
+  // Real-time listener
+  onSnapshot(runsCol, (snapshot) => {
+    window.runs = snapshot.docs.map(d => ({ ...d.data(), _id: d.id }));
+    setSyncStatus('synced');
+    const activePage = document.querySelector('.tab.active');
+    const pageId = activePage ? activePage.textContent.trim().toLowerCase().replace(' ','') : 'dashboard';
+    if (window._appReady) {
+      const map = {
+        'dashboard': () => window.renderDashboard(),
+        'history': () => window.renderHistory(),
+        'personalbests': () => window.renderPBs(),
+        'analysis': () => window.renderAnalysis(),
+        'benchmarks': () => window.renderBenchmarks(),
+        'calculator': () => window.renderCalc(),
+      };
+      (map[pageId] || map['dashboard'])();
+    }
+  }, (err) => { setSyncStatus('offline'); console.error(err); });
+
+  // Expose DB ops to global scope
+  window._firestore = { db, runsCol, addDoc, deleteDoc, doc, serverTimestamp };
+  window._fbReady = true;
+
+  // Show app when Firebase is ready
+  document.getElementById('app-loading').style.display = 'none';
+  document.getElementById('app-content').style.display = 'block';
+  window._appReady = true;
+  window.renderDashboard();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ============================================================
+// STATE
+// ============================================================
+window.runs = window.runs || [];
+
+// ============================================================
+// HELPERS
+// ============================================================
+function parseTime(str) {
+  if (!str) return null;
+  const p = str.split(':');
+  if (p.length === 2) return parseInt(p[0]) * 60 + parseInt(p[1]);
+  if (p.length === 3) return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60 + parseInt(p[2]);
+  return null;
+}
+function formatTime(secs) {
+  if (secs >= 3600) {
+    const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60), s = secs%60;
+    return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  const m = Math.floor(secs/60), s = secs%60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function calcPaceStr(dist, timeSecs) {
+  const ps = timeSecs / dist;
+  return formatTime(Math.round(ps));
+}
+function paceToSecs(paceStr) {
+  if (!paceStr) return 9999;
+  const p = paceStr.split(':');
+  return parseInt(p[0]) * 60 + (parseInt(p[1]) || 0);
+}
+function distClass(d) {
+  const n = parseFloat(d);
+  if (n === 1) return 'dist-1km';
+  if (n === 2) return 'dist-2km';
+  if (n === 3) return 'dist-3km';
+  if (n === 5) return 'dist-5km';
+  if (n === 10) return 'dist-10km';
+  return 'dist-custom';
+}
+function distLabel(d) {
+  const n = parseFloat(d);
+  if (Number.isInteger(n)) return n + 'km';
+  return n + 'km';
+}
+function weekStart(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = (day === 0) ? -6 : 1 - day;
+  dt.setDate(dt.getDate() + diff);
+  return dt.toISOString().split('T')[0];
+}
+function isoWeek(date) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0); d.setDate(d.getDate()+4-(d.getDay()||7));
+  const yearStart = new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+function sameWeek(a,b) { return weekStart(new Date(a)) === weekStart(new Date(b)); }
+function sameMonth(a,b) {
+  const da=new Date(a),db=new Date(b);
+  return da.getFullYear()===db.getFullYear()&&da.getMonth()===db.getMonth();
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+function getPBs() {
+  const pb = {};
+  for (const r of window.runs) {
+    const ts = parseTime(r.time);
+    if (!ts) continue;
+    const key = parseFloat(r.dist);
+    if (!pb[key] || ts < parseTime(pb[key].time)) pb[key] = r;
+  }
+  return pb;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'history') renderHistory();
+  if (id === 'pbs') renderPBs();
+  if (id === 'analysis') renderAnalysis();
+  if (id === 'benchmarks') renderBenchmarks();
+  if (id === 'calculator') renderCalc();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+let chartInstances = {};
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+window.renderDashboard = function() {
+  renderStats();
+  renderHeatmap();
+  renderPaceChart();
+  renderDistChart();
+  renderWeeklyChart();
+  renderPBSummary();
+}
+
+function renderStats() {
+  const todayStr = today();
+  const totalKm = window.runs.reduce((s,r) => s+parseFloat(r.dist), 0);
+  const thisWeekKm = window.runs.filter(r => sameWeek(r.date, todayStr)).reduce((s,r) => s+parseFloat(r.dist), 0);
+  const thisMonthKm = window.runs.filter(r => sameMonth(r.date, todayStr)).reduce((s,r) => s+parseFloat(r.dist), 0);
+  const totalRuns = window.runs.length;
+  let avgPaceSecs = null;
+  if (window.runs.length) {
+    const valid = window.runs.filter(r => parseTime(r.time));
+    if (valid.length) {
+      const total = valid.reduce((s,r) => s + paceToSecs(r.pace || calcPaceStr(parseFloat(r.dist), parseTime(r.time))), 0);
+      avgPaceSecs = Math.round(total / valid.length);
+    }
+  }
+  const dates = [...new Set(window.runs.map(r => r.date))].sort().reverse();
+  let streak = 0; let cur = new Date(todayStr);
+  for (const d of dates) {
+    const dd = new Date(d);
+    const diff = Math.round((cur - dd) / 86400000);
+    if (diff <= 1) { streak++; cur = dd; } else break;
+  }
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="card">
+      <div class="card-label">Total Distance</div>
+      <div class="card-value navy">${totalKm.toFixed(1)}</div>
+      <div class="card-sub">km all time</div>
+    </div>
+    <div class="card">
+      <div class="card-label">This Week</div>
+      <div class="card-value">${thisWeekKm.toFixed(1)}</div>
+      <div class="card-sub">km · <span style="color:var(--text2)">${thisMonthKm.toFixed(1)} km this month</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg Pace</div>
+      <div class="card-value">${avgPaceSecs ? formatTime(avgPaceSecs) : '—'}</div>
+      <div class="card-sub">min/km · all runs</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Runs</div>
+      <div class="card-value">${totalRuns}</div>
+      <div class="card-sub">runs logged · <span style="color:var(--accent2)">${streak} day streak</span></div>
+    </div>
+  `;
+}
+
+function renderHeatmap() {
+  const container = document.getElementById('heatmap-container');
+  const runDates = {};
+  for (const r of window.runs) runDates[r.date] = true;
+
+  const todayD = new Date();
+  const start = new Date(todayD);
+  start.setDate(start.getDate() - 363);
+  while (start.getDay() !== 1) start.setDate(start.getDate() - 1);
+
+  const days = [];
+  const cur = new Date(start);
+  while (cur <= todayD) { days.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
+
+  const weeks = [];
+  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i+7));
+
+  const DOW = ['M','T','W','T','F','S','S'];
+  let html = `<div style="display:flex;gap:6px">`;
+  html += `<div style="display:flex;flex-direction:column;gap:4px;padding-top:22px">`;
+  for (const l of DOW) html += `<div class="heatmap-label">${l}</div>`;
+  html += `</div>`;
+  html += `<div style="display:flex;flex-direction:column;gap:0">`;
+  html += `<div style="display:flex;gap:4px;margin-bottom:4px">`;
+  let lastMonth = -1;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for (const w of weeks) {
+    const m = w[0].getMonth();
+    html += `<div style="width:13px;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);white-space:nowrap;overflow:visible">${m!==lastMonth?months[m]:''}</div>`;
+    lastMonth = m;
+  }
+  html += `</div><div style="display:flex;gap:4px">`;
+  for (const w of weeks) {
+    html += `<div style="display:flex;flex-direction:column;gap:4px">`;
+    for (const d of w) {
+      const ds = d.toISOString().split('T')[0];
+      const ran = runDates[ds] ? 'run' : '';
+      html += `<div class="tooltip-wrap"><div class="heatmap-cell ${ran}"></div><div class="tt">${ds}${ran ? ' · RAN ✓' : ''}</div></div>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div></div></div>`;
+  container.innerHTML = html;
+}
+
+function chartDefaults() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0c0c10', borderColor: '#26263a', borderWidth: 1,
+        titleColor: '#f0f0f5', bodyColor: '#8888a8',
+        titleFont: {family:'DM Mono',size:11}, bodyFont: {family:'DM Mono',size:11}, padding: 10
+      }
+    },
+    scales: {
+      x: { grid: {color:'rgba(255,255,255,0.03)'}, ticks: {color:'#444460',font:{family:'DM Mono',size:10}} },
+      y: { grid: {color:'rgba(255,255,255,0.03)'}, ticks: {color:'#444460',font:{family:'DM Mono',size:10}} }
+    }
+  };
+}
+
+function renderPaceChart() {
+  destroyChart('pace');
+  const sorted = [...window.runs].sort((a,b) => a.date.localeCompare(b.date));
+  if (!sorted.length) return;
+  const labels = sorted.map(r => { const d=new Date(r.date); return `${d.getDate()}/${d.getMonth()+1}`; });
+  const data = sorted.map(r => {
+    const ts = parseTime(r.time); if (!ts) return null;
+    return +(ts/parseFloat(r.dist)/60).toFixed(2);
+  });
+  const ctx = document.getElementById('paceChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,200);
+  grad.addColorStop(0,'rgba(37,99,235,0.3)'); grad.addColorStop(1,'rgba(37,99,235,0)');
+  const defs = chartDefaults(); defs.scales.y.reverse = true;
+  defs.scales.y.ticks.callback = v => `${Math.floor(v)}:${String(Math.round((v%1)*60)).padStart(2,'0')}`;
+  chartInstances['pace'] = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ data, borderColor:'#3b82f6', backgroundColor:grad, tension:0.4, pointBackgroundColor:'#3b82f6', pointRadius:4, pointHoverRadius:6, fill:true }] },
+    options:{ ...defs }
+  });
+}
+
+function renderDistChart() {
+  destroyChart('dist');
+  const counts = {};
+  for (const r of window.runs) {
+    const k = distLabel(r.dist);
+    counts[k] = (counts[k]||0)+1;
+  }
+  const labels = Object.keys(counts); const data = Object.values(counts);
+  const colors = ['rgba(96,165,250,0.8)','rgba(59,130,246,0.8)','rgba(245,158,11,0.8)','rgba(239,68,68,0.8)','rgba(34,197,94,0.8)','rgba(168,85,247,0.8)'];
+  const ctx = document.getElementById('distChart').getContext('2d');
+  chartInstances['dist'] = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors.slice(0,labels.length), borderColor:'#0c0c10', borderWidth:3, hoverOffset:6 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true, position:'right', labels:{color:'#8888a8',font:{family:'DM Mono',size:11},padding:12} }, tooltip:{ backgroundColor:'#0c0c10', borderColor:'#26263a', borderWidth:1, titleColor:'#f0f0f5', bodyColor:'#8888a8' } }, cutout:'65%' }
+  });
+}
+
+function renderWeeklyChart() {
+  destroyChart('weekly');
+  const todayD = new Date();
+  const weeks = [];
+  for (let i=7; i>=0; i--) {
+    const d = new Date(todayD); d.setDate(d.getDate()-i*7);
+    weeks.push(d.toISOString().split('T')[0]);
+  }
+  const labels = weeks.map(w => { const d=new Date(w); return `W${isoWeek(d)}`; });
+  const data = weeks.map(w => window.runs.filter(r => sameWeek(r.date,w)).reduce((s,r) => s+parseFloat(r.dist),0));
+  const ctx = document.getElementById('weeklyChart').getContext('2d');
+  const defs = chartDefaults();
+  chartInstances['weekly'] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data, backgroundColor:'rgba(37,99,235,0.65)', borderRadius:4, borderSkipped:false }] },
+    options:{ ...defs, scales:{...defs.scales, y:{...defs.scales.y, beginAtZero:true, ticks:{...defs.scales.y.ticks, callback:v=>v+'km'}}} }
+  });
+}
+
+function renderPBSummary() {
+  const pb = getPBs();
+  const el = document.getElementById('pb-summary');
+  if (!Object.keys(pb).length) { el.innerHTML=`<div class="empty"><div class="empty-icon">🏃</div><p>No runs yet</p></div>`; return; }
+  el.innerHTML = Object.entries(pb).sort((a,b)=>parseFloat(a[0])-parseFloat(b[0])).map(([d,r]) => {
+    const pace = r.pace || calcPaceStr(parseFloat(r.dist), parseTime(r.time));
+    return `<div class="pb-row">
+      <div><div class="pb-dist">${distLabel(d)}</div><div class="pb-time">${r.time}</div></div>
+      <div style="text-align:right"><div class="pb-pace">${pace} min/km</div><div class="pb-date">${new Date(r.date+'T00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+window.renderHistory = function() {
+  const distFilter = document.getElementById('filter-dist').value;
+  const formFilter = document.getElementById('filter-form').value;
+  const sort = document.getElementById('sort-runs').value;
+  const pb = getPBs();
+  let filtered = [...window.runs];
+  if (distFilter === 'custom') {
+    const preset = [1,2,3,5,10];
+    filtered = filtered.filter(r => !preset.includes(parseFloat(r.dist)));
+  } else if (distFilter) {
+    filtered = filtered.filter(r => parseFloat(r.dist) == parseFloat(distFilter));
+  }
+  if (formFilter) filtered = filtered.filter(r => r.form === formFilter);
+  if (sort==='date-desc') filtered.sort((a,b)=>b.date.localeCompare(a.date));
+  else if (sort==='date-asc') filtered.sort((a,b)=>a.date.localeCompare(b.date));
+  else if (sort==='pace-asc') filtered.sort((a,b)=>paceToSecs(a.pace||'99:99')-paceToSecs(b.pace||'99:99'));
+  else if (sort==='dist-desc') filtered.sort((a,b)=>parseFloat(b.dist)-parseFloat(a.dist));
+
+  const tbody = document.getElementById('history-tbody');
+  if (!filtered.length) { tbody.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏃</div><p>No runs found</p></div></td></tr>`; return; }
+  tbody.innerHTML = filtered.map(r => {
+    const dist = parseFloat(r.dist);
+    const isPB = pb[dist] && pb[dist]._id === r._id;
+    const pace = r.pace || calcPaceStr(dist, parseTime(r.time)||0);
+    return `<tr>
+      <td style="color:var(--text)">${new Date(r.date+'T00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</td>
+      <td><span class="dist-pill ${distClass(r.dist)}">${distLabel(r.dist)}</span></td>
+      <td style="font-family:'DM Mono',monospace">${r.time}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--accent2)">${pace}<span style="color:var(--text3);font-size:10px"> /km</span>${isPB?` <span class="pb-badge">★ PB</span>`:''}</td>
+      <td>${r.form||'—'}</td>
+      <td style="color:var(--text3);font-size:12px">${r.notes||''}</td>
+      <td><button class="delete-btn" onclick="deleteRun('${r._id}')" title="Delete">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteRun(id) {
+  if (!confirm('Delete this run?')) return;
+  if (window._firestore) {
+    const { db, deleteDoc, doc } = window._firestore;
+    await deleteDoc(doc(db, 'runs', id));
+    showNotif('Run deleted', 'Your run has been removed.');
+  }
+}
+window.deleteRun = deleteRun;
+
+// ============================================================
+// PBS
+// ============================================================
+window.renderPBs = function() {
+  const pb = getPBs();
+  const el = document.getElementById('pb-full-list');
+  if (!Object.keys(pb).length) { el.innerHTML=`<div class="empty"><div class="empty-icon">🏆</div><p>Log some runs to see your PBs</p></div>`; return; }
+  el.innerHTML = Object.entries(pb).sort((a,b)=>parseFloat(a[0])-parseFloat(b[0])).map(([d,r]) => {
+    const pace = r.pace || calcPaceStr(parseFloat(r.dist), parseTime(r.time));
+    return `<div class="pb-row">
+      <div>
+        <div class="pb-dist">${distLabel(d)}</div>
+        <div class="pb-time">${r.time}</div>
+        <div class="pb-pace">${pace} /km</div>
+      </div>
+      <div style="text-align:right">
+        <div class="pb-badge">★ PB</div>
+        <div class="pb-date" style="margin-top:8px">${new Date(r.date+'T00:00').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  destroyChart('pb');
+  const entries = Object.entries(pb).sort((a,b)=>parseFloat(a[0])-parseFloat(b[0]));
+  const vals = entries.map(([d,r]) => +(paceToSecs(r.pace || calcPaceStr(parseFloat(d), parseTime(r.time)))/60).toFixed(2));
+  const labs = entries.map(([d]) => distLabel(d));
+  const ctx = document.getElementById('pbChart').getContext('2d');
+  const defs = chartDefaults(); defs.scales.y.reverse = true;
+  defs.scales.y.ticks.callback = v => `${Math.floor(v)}:${String(Math.round((v%1)*60)).padStart(2,'0')}`;
+  chartInstances['pb'] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:labs, datasets:[{ data:vals, backgroundColor:['rgba(96,165,250,0.7)','rgba(59,130,246,0.7)','rgba(245,158,11,0.7)','rgba(239,68,68,0.7)','rgba(34,197,94,0.7)'].slice(0,labs.length), borderRadius:6, borderSkipped:false }] },
+    options:{ ...defs, plugins:{...defs.plugins, tooltip:{...defs.plugins.tooltip, callbacks:{label:c=>`${Math.floor(c.raw)}:${String(Math.round((c.raw%1)*60)).padStart(2,'0')} min/km`}}} }
+  });
+
+  const tl = document.getElementById('pb-timeline');
+  const presets = [...new Set(window.runs.map(r => parseFloat(r.dist)))].sort((a,b)=>a-b);
+  const pbRuns = presets.flatMap(d => {
+    const distRuns = [...window.runs].filter(r=>parseFloat(r.dist)===d).sort((a,b)=>a.date.localeCompare(b.date));
+    let best=null,out=[];
+    for (const r of distRuns) {
+      const t = parseTime(r.time);
+      if (!t) continue;
+      if (!best||t<best) { best=t; out.push({...r}); }
+    }
+    return out;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  if (!pbRuns.length) { tl.innerHTML=`<div class="empty"><p>No PB history yet</p></div>`; return; }
+  tl.innerHTML = pbRuns.map(r => {
+    const pace = r.pace || calcPaceStr(parseFloat(r.dist), parseTime(r.time));
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);min-width:80px">${r.date}</div>
+      <span class="dist-pill ${distClass(r.dist)}">${distLabel(r.dist)}</span>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text)">${r.time}</div>
+      <div style="font-size:12px;color:var(--text3)">${pace}/km</div>
+      <span class="pb-badge">★ PB</span>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// ANALYSIS
+// ============================================================
+window.renderAnalysis = function() {
+  const paces = window.runs.filter(r=>parseTime(r.time)).map(r=>paceToSecs(r.pace||calcPaceStr(parseFloat(r.dist),parseTime(r.time))));
+  const bestPace = paces.length ? formatTime(Math.min(...paces)) : '—';
+  const worstPace = paces.length ? formatTime(Math.max(...paces)) : '—';
+  const avgPace = paces.length ? formatTime(Math.round(paces.reduce((a,b)=>a+b,0)/paces.length)) : '—';
+  const longestRun = window.runs.length ? Math.max(...window.runs.map(r=>parseFloat(r.dist))) : 0;
+  document.getElementById('analysis-stats').innerHTML = `
+    <div class="card"><div class="card-label">Fastest Pace</div><div class="card-value navy">${bestPace}</div><div class="card-sub">min/km</div></div>
+    <div class="card"><div class="card-label">Slowest Pace</div><div class="card-value">${worstPace}</div><div class="card-sub">min/km</div></div>
+    <div class="card"><div class="card-label">Average Pace</div><div class="card-value">${avgPace}</div><div class="card-sub">min/km</div></div>
+    <div class="card"><div class="card-label">Longest Run</div><div class="card-value">${longestRun}</div><div class="card-sub">km</div></div>
+  `;
+  destroyChart('dow');
+  const dow = Array(7).fill(0);
+  for (const r of window.runs) { const d=new Date(r.date+'T00:00'); dow[d.getDay()]++; }
+  const reordered = [...dow.slice(1),...dow.slice(0,1)];
+  const ctx1 = document.getElementById('dowChart').getContext('2d');
+  const defs = chartDefaults();
+  chartInstances['dow'] = new Chart(ctx1, {
+    type:'bar',
+    data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ data:reordered, backgroundColor:'rgba(37,99,235,0.6)', borderRadius:4, borderSkipped:false }] },
+    options:{ ...defs, plugins:{...defs.plugins}, scales:{...defs.scales, y:{...defs.scales.y, beginAtZero:true, ticks:{...defs.scales.y.ticks, stepSize:1}}} }
+  });
+
+  destroyChart('terrain');
+  const terrains = {};
+  for (const r of window.runs) {
+    if (!r.form) continue;
+    if (!terrains[r.form]) terrains[r.form]={total:0,count:0};
+    const t = parseTime(r.time);
+    if (t) { terrains[r.form].total+=paceToSecs(r.pace||calcPaceStr(parseFloat(r.dist),t)); terrains[r.form].count++; }
+  }
+  const tLabels = Object.keys(terrains);
+  const tData = tLabels.map(t => terrains[t].count ? +(terrains[t].total/terrains[t].count/60).toFixed(2) : 0);
+  const ctx2 = document.getElementById('terrainChart').getContext('2d');
+  const defs2 = chartDefaults(); defs2.scales.y.reverse=true;
+  defs2.scales.y.ticks.callback = v=>`${Math.floor(v)}:${String(Math.round((v%1)*60)).padStart(2,'0')}`;
+  chartInstances['terrain'] = new Chart(ctx2, {
+    type:'bar',
+    data:{ labels:tLabels, datasets:[{ data:tData, backgroundColor:['rgba(37,99,235,0.7)','rgba(245,158,11,0.7)','rgba(96,165,250,0.7)','rgba(239,68,68,0.7)'], borderRadius:4, borderSkipped:false }] },
+    options:{ ...defs2, plugins:{...defs2.plugins, tooltip:{...defs2.plugins.tooltip, callbacks:{label:c=>`Avg pace: ${Math.floor(c.raw)}:${String(Math.round((c.raw%1)*60)).padStart(2,'0')} /km`}}} }
+  });
+
+  destroyChart('cumul');
+  const sorted = [...window.runs].sort((a,b)=>a.date.localeCompare(b.date));
+  let cumul = 0;
+  const cDates = sorted.map(r=>{ const d=new Date(r.date+'T00:00'); return`${d.getDate()}/${d.getMonth()+1}`; });
+  const cData = sorted.map(r=>{ cumul+=parseFloat(r.dist); return cumul; });
+  const ctx3 = document.getElementById('cumulChart').getContext('2d');
+  const grad3 = ctx3.createLinearGradient(0,0,0,200);
+  grad3.addColorStop(0,'rgba(37,99,235,0.25)'); grad3.addColorStop(1,'rgba(37,99,235,0)');
+  const defs3 = chartDefaults();
+  chartInstances['cumul'] = new Chart(ctx3, {
+    type:'line',
+    data:{ labels:cDates, datasets:[{ data:cData, borderColor:'#3b82f6', backgroundColor:grad3, tension:0.4, fill:true, pointBackgroundColor:'#3b82f6', pointRadius:3 }] },
+    options:{ ...defs3, scales:{...defs3.scales, y:{...defs3.scales.y, beginAtZero:true, ticks:{...defs3.scales.y.ticks, callback:v=>v+'km'}}} }
+  });
+}
+
+// ============================================================
+// BENCHMARKS
+// ============================================================
+const BENCHMARKS = {
+  1: {
+    label: '1km',
+    info: 'The 1km is a pure speed event. Elite times sit around 2:30 for men. A good recreational time is under 4:30. Pace strategy matters a lot — too fast early and you'll blow up.',
+    levels: [
+      { name:'World-class', range:'2:10–2:30', pace:'2:10–2:30', color:'#ef4444' },
+      { name:'Elite Club Runner', range:'2:30–3:00', pace:'2:30–3:00', color:'#f97316' },
+      { name:'Competitive', range:'3:00–3:45', pace:'3:00–3:45', color:'#f59e0b' },
+      { name:'Good Recreational', range:'3:45–4:30', pace:'3:45–4:30', color:'#22c55e' },
+      { name:'Average Runner', range:'4:30–5:30', pace:'4:30–5:30', color:'#3b82f6' },
+      { name:'Beginner', range:'5:30–7:00', pace:'5:30–7:00', color:'#8b5cf6' },
+    ],
+    elitePaceSecs: 150, // 2:30
+    beginnerPaceSecs: 420, // 7:00
+  },
+  2: {
+    label: '2km',
+    info: 'The 2km bridges speed and endurance. It requires strong aerobic capacity. Elite runners hold sub-3:00/km pace. A solid time for recreational runners is under 9 minutes.',
+    levels: [
+      { name:'World-class', range:'5:20–6:00', pace:'2:40–3:00', color:'#ef4444' },
+      { name:'Elite Club Runner', range:'6:00–7:00', pace:'3:00–3:30', color:'#f97316' },
+      { name:'Competitive', range:'7:00–8:30', pace:'3:30–4:15', color:'#f59e0b' },
+      { name:'Good Recreational', range:'8:30–10:00', pace:'4:15–5:00', color:'#22c55e' },
+      { name:'Average Runner', range:'10:00–12:00', pace:'5:00–6:00', color:'#3b82f6' },
+      { name:'Beginner', range:'12:00–16:00', pace:'6:00–8:00', color:'#8b5cf6' },
+    ],
+    elitePaceSecs: 160,
+    beginnerPaceSecs: 480,
+  },
+  3: {
+    label: '3km',
+    info: 'The 3km is a classic track & field distance. It demands both speed and sustained aerobic effort. Elite men run under 8 minutes. For recreational runners, sub-15:00 is very solid.',
+    levels: [
+      { name:'World-class', range:'7:30–8:30', pace:'2:30–2:50', color:'#ef4444' },
+      { name:'Elite Club Runner', range:'8:30–10:00', pace:'2:50–3:20', color:'#f97316' },
+      { name:'Competitive', range:'10:00–12:00', pace:'3:20–4:00', color:'#f59e0b' },
+      { name:'Good Recreational', range:'12:00–15:00', pace:'4:00–5:00', color:'#22c55e' },
+      { name:'Average Runner', range:'15:00–18:00', pace:'5:00–6:00', color:'#3b82f6' },
+      { name:'Beginner', range:'18:00–24:00', pace:'6:00–8:00', color:'#8b5cf6' },
+    ],
+    elitePaceSecs: 150,
+    beginnerPaceSecs: 480,
+  },
+  5: {
+    label: '5km',
+    info: 'The 5km is the most popular race distance worldwide. Elite runners finish under 14 minutes. Sub-20 is a well-known recreational benchmark. Average club runners aim for 20–25 min.',
+    levels: [
+      { name:'World-class', range:'12:30–14:00', pace:'2:30–2:48', color:'#ef4444' },
+      { name:'Elite Club Runner', range:'14:00–16:30', pace:'2:48–3:18', color:'#f97316' },
+      { name:'Competitive', range:'16:30–20:00', pace:'3:18–4:00', color:'#f59e0b' },
+      { name:'Good Recreational', range:'20:00–25:00', pace:'4:00–5:00', color:'#22c55e' },
+      { name:'Average Runner', range:'25:00–30:00', pace:'5:00–6:00', color:'#3b82f6' },
+      { name:'Beginner', range:'30:00–45:00', pace:'6:00–9:00', color:'#8b5cf6' },
+    ],
+    elitePaceSecs: 150,
+    beginnerPaceSecs: 540,
+  },
+  10: {
+    label: '10km',
+    info: 'The 10km is where aerobic base dominates. World record pace is under 2:40/km. Sub-40 minutes is a serious amateur benchmark. Average recreational runners finish in 50–60 min.',
+    levels: [
+      { name:'World-class', range:'25:00–28:00', pace:'2:30–2:48', color:'#ef4444' },
+      { name:'Elite Club Runner', range:'28:00–33:00', pace:'2:48–3:18', color:'#f97316' },
+      { name:'Competitive', range:'33:00–40:00', pace:'3:18–4:00', color:'#f59e0b' },
+      { name:'Good Recreational', range:'40:00–50:00', pace:'4:00–5:00', color:'#22c55e' },
+      { name:'Average Runner', range:'50:00–60:00', pace:'5:00–6:00', color:'#3b82f6' },
+      { name:'Beginner', range:'60:00+', pace:'6:00+', color:'#8b5cf6' },
+    ],
+    elitePaceSecs: 150,
+    beginnerPaceSecs: 600,
+  }
+};
+
+window.renderBenchmarks = function() {
+  const pb = getPBs();
+  const el = document.getElementById('benchmark-content');
+  const dists = [1, 2, 3, 5, 10];
+
+  el.innerHTML = dists.map(d => {
+    const bm = BENCHMARKS[d];
+    const myPB = pb[d];
+    const myPaceSecs = myPB ? paceToSecs(myPB.pace || calcPaceStr(d, parseTime(myPB.time))) : null;
+    const myTimeStr = myPB ? myPB.time : null;
+
+    // Find level
+    let myLevel = null;
+    if (myPaceSecs) {
+      if (myPaceSecs <= paceToSecs('2:50')) myLevel = 0;
+      else if (myPaceSecs <= paceToSecs('3:30')) myLevel = 1;
+      else if (myPaceSecs <= paceToSecs('4:15')) myLevel = 2;
+      else if (myPaceSecs <= paceToSecs('5:00')) myLevel = 3;
+      else if (myPaceSecs <= paceToSecs('6:00')) myLevel = 4;
+      else myLevel = 5;
+    }
+
+    // Bar position: from elite (2:30) to beginner (varies)
+    let barPct = null;
+    if (myPaceSecs) {
+      const elite = bm.elitePaceSecs;
+      const slow = bm.beginnerPaceSecs;
+      barPct = Math.min(100, Math.max(0, ((myPaceSecs - elite) / (slow - elite)) * 100));
+    }
+
+    const rowsHtml = bm.levels.map((l,i) => `
+      <tr>
+        <td>
+          <div class="bm-level">
+            <div class="bm-dot" style="background:${l.color}"></div>
+            <span style="font-weight:${myLevel===i?'700':'400'};color:${myLevel===i?'var(--text)':'var(--text2)'}">${l.name}${myLevel===i?' ← YOU':''}</span>
+          </div>
+        </td>
+        <td style="font-family:'DM Mono',monospace;color:var(--text3);text-align:right">${l.range}</td>
+        <td style="font-family:'DM Mono',monospace;color:var(--text3);text-align:right">${l.pace}/km</td>
+      </tr>
+    `).join('');
+
+    return `<div class="card" style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div style="font-size:22px;font-weight:900;letter-spacing:-1px;color:var(--text)">${bm.label}</div>
+        ${myTimeStr ? `<div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2)">YOUR PB: ${myTimeStr} &nbsp;·&nbsp; ${myPB.pace || calcPaceStr(d, parseTime(myPB.time))}/km</div>` : `<div style="font-size:11px;color:var(--text3)">No runs yet</div>`}
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">About this distance</div>
+        <p>${bm.info}</p>
+      </div>
+      ${barPct !== null ? `
+      <div style="margin:16px 0">
+        <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:6px">
+          <span>WORLD-CLASS</span><span>BEGINNER</span>
+        </div>
+        <div class="pace-compare-bar">
+          <div class="pace-compare-fill" style="width:${barPct}%"></div>
+          <div class="pace-compare-you" style="left:${barPct}%" title="Your pace"></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-top:8px;text-align:center">← faster &nbsp;&nbsp; YOUR POSITION &nbsp;&nbsp; slower →</div>
+      </div>` : ''}
+      <table class="benchmark-table">
+        <thead><tr><th>Level</th><th style="text-align:right">Finish Time</th><th style="text-align:right">Pace</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// CALCULATOR
+// ============================================================
+window.renderCalc = function() {
+  const zones = document.getElementById('pace-zones');
+  zones.innerHTML = `
+    <div style="margin-bottom:18px;color:var(--text2);font-size:12px;line-height:1.7">Pace ranges vary by distance. A 4:00/km pace is recreational for a 1km but elite for a 10km. Use the Benchmarks tab for distance-specific context.</div>
+    ${[
+      {name:'World-class',range:'2:30 – 3:00',color:'#ef4444'},
+      {name:'Elite Club',range:'3:00 – 3:30',color:'#f97316'},
+      {name:'Competitive',range:'3:30 – 4:30',color:'#f59e0b'},
+      {name:'Good Recreational',range:'4:30 – 5:30',color:'#22c55e'},
+      {name:'Average Runner',range:'5:30 – 7:00',color:'#3b82f6'},
+      {name:'Beginner / Walk-Run',range:'7:00+',color:'#8b5cf6'},
+    ].map(z => `
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="width:10px;height:10px;border-radius:50%;background:${z.color};flex-shrink:0;box-shadow:0 0 8px ${z.color}44"></div>
+      <div style="flex:1;font-size:13px;font-weight:600">${z.name}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${z.range}</div>
+    </div>`).join('')}
+  `;
+}
+
+function calcPace() {
+  const dist = parseFloat(document.getElementById('calc-dist').value);
+  const timeStr = document.getElementById('calc-time').value;
+  const res = document.getElementById('calc-result');
+  if (!dist||!timeStr) { res.innerHTML=''; return; }
+  const secs = parseTime(timeStr);
+  if (!secs) { res.innerHTML=''; return; }
+  const pace = calcPaceStr(dist, secs);
+  const paceS = paceToSecs(pace);
+  const speedKph = +(3600/paceS).toFixed(2);
+  res.innerHTML = `<div class="pace-result-label">PACE</div><div class="pace-result">${pace} <span style="font-size:16px;color:var(--text3)">/km</span></div><div style="margin-top:8px;font-size:13px;color:var(--text3)">Speed: <span style="color:var(--text2)">${speedKph} km/h</span></div>`;
+}
+window.calcPace = calcPace;
+
+function calcTarget() {
+  const dist = parseFloat(document.getElementById('target-dist').value);
+  const paceStr = document.getElementById('target-pace').value;
+  const res = document.getElementById('target-result');
+  if (!dist||!paceStr) { res.innerHTML=''; return; }
+  const ps = paceToSecs(paceStr);
+  if (!ps) { res.innerHTML=''; return; }
+  const totalSecs = Math.round(ps*dist);
+  res.innerHTML = `<div class="pace-result-label">TARGET TIME</div><div class="pace-result">${formatTime(totalSecs)}</div>`;
+}
+window.calcTarget = calcTarget;
+
+// ============================================================
+// LOG RUN MODAL
+// ============================================================
+function openLogModal() {
+  const d = document.getElementById('run-date');
+  if (!d.value) d.value = today();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+window.openLogModal = openLogModal;
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+window.closeModal = closeModal;
+
+function toggleCustomDist() {
+  const val = document.getElementById('run-dist').value;
+  document.getElementById('custom-dist-group').style.display = val === 'custom' ? 'flex' : 'none';
+}
+window.toggleCustomDist = toggleCustomDist;
+
+function updatePaceCalc() {
+  const distSel = document.getElementById('run-dist').value;
+  const dist = distSel === 'custom'
+    ? parseFloat(document.getElementById('run-custom-dist').value)
+    : parseFloat(distSel);
+  const timeStr = document.getElementById('run-time').value;
+  const el = document.getElementById('auto-pace');
+  if (!timeStr||!dist) { el.innerHTML=`<span style="opacity:0.4">Enter distance and time above</span>`; return; }
+  const secs = parseTime(timeStr);
+  if (!secs) { el.innerHTML=`<span style="color:var(--red)">Invalid time format</span>`; return; }
+  const pace = calcPaceStr(dist, secs);
+  el.innerHTML = `⚡ ${pace} <span style="color:var(--text3)">min/km</span>`;
+}
+window.updatePaceCalc = updatePaceCalc;
+
+async function saveRun() {
+  const date = document.getElementById('run-date').value;
+  const distSel = document.getElementById('run-dist').value;
+  const dist = distSel === 'custom'
+    ? parseFloat(document.getElementById('run-custom-dist').value)
+    : parseFloat(distSel);
+  const time = document.getElementById('run-time').value.trim();
+  const form = document.getElementById('run-form').value;
+  const notes = document.getElementById('run-notes').value.trim();
+
+  if (!date||!dist||!time) { alert('Please fill in date, distance and time.'); return; }
+  const secs = parseTime(time);
+  if (!secs) { alert('Invalid time format. Use mm:ss (e.g. 13:20) or h:mm:ss'); return; }
+
+  const pace = calcPaceStr(dist, secs);
+  const oldPB = getPBs()[dist];
+  const runData = { date, dist, time, pace, form, notes };
+
+  // Save to Firebase
+  if (window._firestore) {
+    const { runsCol, addDoc, serverTimestamp } = window._firestore;
+    const setSyncStatus = (s) => {
+      const dot = document.getElementById('sync-dot');
+      const label = document.getElementById('sync-label');
+      if (s==='syncing') { dot.className='sync-dot syncing'; label.textContent='SYNCING…'; }
+    };
+    setSyncStatus('syncing');
+    await addDoc(runsCol, { ...runData, createdAt: serverTimestamp() });
+  }
+
+  closeModal();
+  document.getElementById('run-time').value='';
+  document.getElementById('run-notes').value='';
+  document.getElementById('run-custom-dist').value='';
+  document.getElementById('custom-dist-group').style.display='none';
+  document.getElementById('run-dist').value='3';
+  document.getElementById('auto-pace').innerHTML=`<span style="opacity:0.4">Enter distance and time above</span>`;
+
+  const newPB = getPBs()[dist];
+  const isPB = !oldPB || (newPB && newPB._id !== oldPB._id);
+  if (isPB) showNotif('🏆 New Personal Best!', `${distLabel(dist)} in ${time} (${pace}/km)`);
+  else showNotif('Run logged!', `${distLabel(dist)} · ${time} · ${pace}/km`);
+}
+window.saveRun = saveRun;
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+  if (!window.runs.length) { showNotif('No data','Log some runs first.'); return; }
+  const header = 'Date,Distance (km),Time,Pace (min/km),Terrain,Notes';
+  const rows = window.runs.map(r => `${r.date},${r.dist},"${r.time}","${r.pace||''}","${r.form||''}","${r.notes||''}"`);
+  const csv = [header,...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`runtrack_${today()}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showNotif('CSV exported',`${window.runs.length} runs saved.`);
+}
+window.exportCSV = exportCSV;
+
+// ============================================================
+// NOTIFICATION
+// ============================================================
+function showNotif(title, body) {
+  const n = document.getElementById('notif');
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-body').textContent = body;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3500);
+}
+window.showNotif = showNotif;
+
+// ============================================================
+// INIT
+// ============================================================
+document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+</script>
+</body>
+</html>
