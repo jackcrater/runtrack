@@ -1,10 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RUNTRACK — Lewis's Running Dashboard</title>
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -40,320 +40,411 @@
     line-height: 1.5;
   }
 
-  /* LOADING */
-  #app-loading {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 9999; gap: 20px;
-  }
-  #app-loading .loading-logo {
-    font-size: 36px; font-weight: 900; letter-spacing: 8px; color: var(--accent2);
-    text-transform: uppercase;
-  }
-  #app-loading .loading-sub { font-size: 12px; color: var(--text3); letter-spacing: 3px; }
-  .spinner {
-    width: 36px; height: 36px; border: 2px solid var(--border2);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  #app-content { display: none; }
+/* LOADING */
+#app-loading {
+position: fixed; inset: 0; background: var(–bg);
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+z-index: 9999; gap: 20px; pointer-events: none;
+}
+#app-loading .loading-logo {
+font-size: 36px; font-weight: 900; letter-spacing: 8px; color: var(–accent2);
+text-transform: uppercase;
+}
+#app-loading .loading-sub { font-size: 12px; color: var(–text3); letter-spacing: 3px; }
+.spinner {
+width: 36px; height: 36px; border: 2px solid var(–border2);
+border-top-color: var(–accent); border-radius: 50%;
+animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#app-content { display: none; }
 
-  /* HEADER */
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 32px;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(5,5,7,0.95);
-    backdrop-filter: blur(16px);
-  }
-  .logo { display: flex; flex-direction: column; gap: 2px; }
-  .logo-name {
-    font-size: 20px; font-weight: 900; letter-spacing: 6px;
-    text-transform: uppercase; color: var(--accent2);
-  }
-  .logo-sub {
-    font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--text3);
-    text-transform: uppercase;
-  }
-  .header-right { display: flex; gap: 10px; align-items: center; }
-  .sync-status {
-    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px;
-    color: var(--text3); display: flex; align-items: center; gap: 6px;
-  }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
-  .sync-dot.synced { background: var(--green); box-shadow: 0 0 8px var(--green); }
-  .sync-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  .btn {
-    padding: 8px 18px; border-radius: 8px; border: none;
-    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
-    cursor: pointer; transition: var(--transition); letter-spacing: 1px; text-transform: uppercase;
-  }
-  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-primary {
-    background: var(--accent); color: #fff;
-    box-shadow: 0 0 20px var(--accent-glow);
-  }
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 24px var(--accent-glow); }
-  .btn-danger { background: transparent; border: 1px solid var(--border2); color: var(--red); }
-  .btn-danger:hover { border-color: var(--red); background: rgba(239,68,68,0.08); }
+/* HEADER */
+.header {
+display: flex; align-items: center; justify-content: space-between;
+padding: 18px 32px;
+border-bottom: 1px solid var(–border);
+position: sticky; top: 0; z-index: 100;
+background: rgba(5,5,7,0.95);
+backdrop-filter: blur(16px);
+}
+.logo { display: flex; flex-direction: column; gap: 2px; }
+.logo-name {
+font-size: 20px; font-weight: 900; letter-spacing: 6px;
+text-transform: uppercase; color: var(–accent2);
+}
+.logo-sub {
+font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(–text3);
+text-transform: uppercase;
+}
+.header-right { display: flex; gap: 10px; align-items: center; }
+.sync-status {
+font-family: ‘DM Mono’, monospace; font-size: 10px; letter-spacing: 1px;
+color: var(–text3); display: flex; align-items: center; gap: 6px;
+}
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(–text3); }
+.sync-dot.synced { background: var(–green); box-shadow: 0 0 8px var(–green); }
+.sync-dot.syncing { background: var(–gold); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.btn {
+padding: 8px 18px; border-radius: 8px; border: none;
+font-family: ‘Inter’, sans-serif; font-size: 12px; font-weight: 700;
+cursor: pointer; transition: var(–transition); letter-spacing: 1px; text-transform: uppercase;
+}
+.btn-outline { background: transparent; border: 1px solid var(–border2); color: var(–text2); }
+.btn-outline:hover { border-color: var(–accent); color: var(–accent); }
+.btn-primary {
+background: var(–accent); color: #fff;
+box-shadow: 0 0 20px var(–accent-glow);
+}
+.btn-primary:hover { background: var(–accent2); transform: translateY(-1px); box-shadow: 0 4px 24px var(–accent-glow); }
+.btn-danger { background: transparent; border: 1px solid var(–border2); color: var(–red); }
+.btn-danger:hover { border-color: var(–red); background: rgba(239,68,68,0.08); }
 
-  /* NAV TABS */
-  .nav-tabs {
-    display: flex; gap: 0; padding: 0 32px;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto; scrollbar-width: none;
-    background: var(--bg);
-  }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-  .tab {
-    padding: 14px 20px; font-size: 11px; font-weight: 700; color: var(--text3);
-    cursor: pointer; border-bottom: 2px solid transparent;
-    transition: var(--transition); white-space: nowrap; letter-spacing: 2px; text-transform: uppercase;
-  }
-  .tab:hover { color: var(--text2); }
-  .tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+/* NAV TABS */
+.nav-tabs {
+display: flex; gap: 0; padding: 0 32px;
+border-bottom: 1px solid var(–border);
+overflow-x: auto; scrollbar-width: none;
+background: var(–bg);
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.tab {
+padding: 14px 20px; font-size: 11px; font-weight: 700; color: var(–text3);
+cursor: pointer; border-bottom: 2px solid transparent;
+transition: var(–transition); white-space: nowrap; letter-spacing: 2px; text-transform: uppercase;
+}
+.tab:hover { color: var(–text2); }
+.tab.active { color: var(–accent2); border-bottom-color: var(–accent2); }
 
-  /* MAIN */
-  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
-  .page { display: none; }
-  .page.active { display: block; }
+/* MAIN */
+.main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+.page { display: none; }
+.page.active { display: block; }
 
-  /* SECTION HEADERS */
-  .section-heading {
-    font-size: 11px; font-weight: 800; letter-spacing: 3px;
-    text-transform: uppercase; color: var(--accent3); margin-bottom: 20px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .section-heading::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-  }
+/* SECTION HEADERS */
+.section-heading {
+font-size: 11px; font-weight: 800; letter-spacing: 3px;
+text-transform: uppercase; color: var(–accent3); margin-bottom: 20px;
+display: flex; align-items: center; gap: 12px;
+}
+.section-heading::after {
+content: ‘’; flex: 1; height: 1px; background: var(–border);
+}
 
-  /* GRID */
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
-  .grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 20px; }
-  .grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
-  @media (max-width: 900px) {
-    .grid-4,.grid-3 { grid-template-columns: repeat(2,1fr); }
-    .grid-2,.grid-12,.grid-21 { grid-template-columns: 1fr; }
-    .stat-grid { grid-template-columns: repeat(2,1fr) !important; }
-  }
-  @media (max-width: 520px) {
-    .main { padding: 16px; }
-    .header { padding: 14px 16px; }
-    .nav-tabs { padding: 0 16px; }
-    .grid-4 { grid-template-columns: 1fr 1fr; }
-  }
+/* GRID */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+.grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 20px; }
+.grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 900px) {
+.grid-4,.grid-3 { grid-template-columns: repeat(2,1fr); }
+.grid-2,.grid-12,.grid-21 { grid-template-columns: 1fr; }
+.stat-grid { grid-template-columns: repeat(2,1fr) !important; }
+}
+@media (max-width: 520px) {
+.main { padding: 16px; }
+.header { padding: 14px 16px; }
+.nav-tabs { padding: 0 16px; }
+.grid-4 { grid-template-columns: 1fr 1fr; }
+}
 
-  /* CARDS */
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--card-radius);
-    padding: 22px;
-    transition: border-color var(--transition);
-  }
-  .card:hover { border-color: var(--border2); }
-  .card-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px; font-weight: 500;
-    letter-spacing: 2px; text-transform: uppercase;
-    color: var(--text3); margin-bottom: 10px;
-  }
-  .card-value {
-    font-size: 42px; font-weight: 900; color: var(--text);
-    line-height: 1; letter-spacing: -2px;
-  }
-  .card-value.navy { color: var(--accent3); }
-  .card-sub { font-size: 11px; color: var(--text3); margin-top: 8px; }
-  .card-title {
-    font-size: 11px; font-weight: 800; color: var(--text);
-    margin-bottom: 18px; letter-spacing: 2px; text-transform: uppercase;
-  }
+/* CARDS */
+.card {
+background: var(–bg2);
+border: 1px solid var(–border);
+border-radius: var(–card-radius);
+padding: 22px;
+transition: border-color var(–transition);
+}
+.card:hover { border-color: var(–border2); }
+.card-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px; font-weight: 500;
+letter-spacing: 2px; text-transform: uppercase;
+color: var(–text3); margin-bottom: 10px;
+}
+.card-value {
+font-size: 42px; font-weight: 900; color: var(–text);
+line-height: 1; letter-spacing: -2px;
+}
+.card-value.navy { color: var(–accent3); }
+.card-sub { font-size: 11px; color: var(–text3); margin-top: 8px; }
+.card-title {
+font-size: 11px; font-weight: 800; color: var(–text);
+margin-bottom: 18px; letter-spacing: 2px; text-transform: uppercase;
+}
 
-  /* STAT CARDS */
-  .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+/* STAT CARDS */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
 
-  /* HEATMAP */
-  .heatmap-scroll { overflow-x: auto; padding-bottom: 4px; }
-  .heatmap-scroll::-webkit-scrollbar { height: 3px; }
-  .heatmap-scroll::-webkit-scrollbar-track { background: var(--bg3); }
-  .heatmap-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .heatmap-cell {
-    width: 13px; height: 13px; border-radius: 3px;
-    background: var(--bg3);
-    cursor: pointer; transition: transform var(--transition);
-    flex-shrink: 0;
-  }
-  .heatmap-cell:hover { transform: scale(1.35); }
-  .heatmap-cell.run { background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
-  .heatmap-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); width: 20px; text-align: right; flex-shrink: 0; }
+/* HEATMAP */
+.heatmap-scroll { overflow-x: auto; padding-bottom: 4px; }
+.heatmap-scroll::-webkit-scrollbar { height: 3px; }
+.heatmap-scroll::-webkit-scrollbar-track { background: var(–bg3); }
+.heatmap-scroll::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 2px; }
+.heatmap-cell {
+width: 13px; height: 13px; border-radius: 3px;
+background: var(–bg3);
+cursor: pointer; transition: transform var(–transition);
+flex-shrink: 0;
+}
+.heatmap-cell:hover { transform: scale(1.35); }
+.heatmap-cell.run { background: var(–accent); box-shadow: 0 0 6px var(–accent-glow); }
+.heatmap-label { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3); width: 20px; text-align: right; flex-shrink: 0; }
 
-  /* CHART */
-  .chart-container { position: relative; width: 100%; }
-  canvas { width: 100% !important; }
+/* CHART */
+.chart-container { position: relative; width: 100%; }
+canvas { width: 100% !important; }
 
-  /* PB BADGES */
-  .pb-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(245,158,11,0.1); color: var(--gold);
-    border: 1px solid rgba(245,158,11,0.25); border-radius: 4px;
-    padding: 2px 8px; font-size: 9px; font-family: 'DM Mono', monospace;
-    font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
-  }
+/* PB BADGES */
+.pb-badge {
+display: inline-flex; align-items: center; gap: 4px;
+background: rgba(245,158,11,0.1); color: var(–gold);
+border: 1px solid rgba(245,158,11,0.25); border-radius: 4px;
+padding: 2px 8px; font-size: 9px; font-family: ‘DM Mono’, monospace;
+font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+}
 
-  /* FORM */
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-label {
-    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
-    letter-spacing: 2px; text-transform: uppercase;
-  }
-  .form-input, .form-select {
-    background: var(--bg3); border: 1px solid var(--border2);
-    color: var(--text); border-radius: 8px; padding: 11px 14px;
-    font-family: 'Inter', sans-serif; font-size: 14px;
-    transition: border-color var(--transition); outline: none; width: 100%;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-  .form-select option { background: var(--bg2); }
-  .form-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  .auto-calc-display {
-    font-family: 'DM Mono', monospace; font-size: 14px; color: var(--accent2);
-    padding: 11px 14px; background: rgba(37,99,235,0.06);
-    border: 1px solid rgba(37,99,235,0.2); border-radius: 8px;
-    display: flex; align-items: center; gap: 8px;
-  }
+/* FORM */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label {
+font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3);
+letter-spacing: 2px; text-transform: uppercase;
+}
+.form-input, .form-select {
+background: var(–bg3); border: 1px solid var(–border2);
+color: var(–text); border-radius: 8px; padding: 11px 14px;
+font-family: ‘Inter’, sans-serif; font-size: 14px;
+transition: border-color var(–transition); outline: none; width: 100%;
+}
+.form-input:focus, .form-select:focus { border-color: var(–accent); box-shadow: 0 0 0 3px var(–accent-glow); }
+.form-select option { background: var(–bg2); }
+.form-note { font-size: 11px; color: var(–text3); margin-top: 4px; }
+.auto-calc-display {
+font-family: ‘DM Mono’, monospace; font-size: 14px; color: var(–accent2);
+padding: 11px 14px; background: rgba(37,99,235,0.06);
+border: 1px solid rgba(37,99,235,0.2); border-radius: 8px;
+display: flex; align-items: center; gap: 8px;
+}
 
-  /* RUNS TABLE */
-  .runs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .runs-table th {
-    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
-    letter-spacing: 2px; text-transform: uppercase; padding: 10px 14px;
-    text-align: left; border-bottom: 1px solid var(--border);
-  }
-  .runs-table td { padding: 13px 14px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
-  .runs-table tr:last-child td { border-bottom: none; }
-  .runs-table tr:hover td { background: rgba(255,255,255,0.02); }
-  .dist-pill {
-    display: inline-block; padding: 3px 10px; border-radius: 20px;
-    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
-    letter-spacing: 1px;
-  }
-  .dist-1km { background: rgba(96,165,250,0.12); color: #60a5fa; }
-  .dist-2km { background: rgba(37,99,235,0.15); color: #3b82f6; }
-  .dist-3km { background: rgba(245,158,11,0.12); color: var(--gold); }
-  .dist-5km { background: rgba(239,68,68,0.12); color: var(--red); }
-  .dist-10km { background: rgba(34,197,94,0.12); color: var(--green); }
-  .dist-custom { background: rgba(168,85,247,0.12); color: #a855f7; }
-  .delete-btn {
-    background: none; border: none; color: var(--text3); cursor: pointer;
-    padding: 4px 8px; border-radius: 6px; font-size: 14px; transition: var(--transition);
-  }
-  .delete-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+/* RUNS TABLE */
+.runs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.runs-table th {
+font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3);
+letter-spacing: 2px; text-transform: uppercase; padding: 10px 14px;
+text-align: left; border-bottom: 1px solid var(–border);
+}
+.runs-table td { padding: 13px 14px; border-bottom: 1px solid var(–border); color: var(–text2); vertical-align: middle; }
+.runs-table tr:last-child td { border-bottom: none; }
+.runs-table tr:hover td { background: rgba(255,255,255,0.02); }
+.dist-pill {
+display: inline-block; padding: 3px 10px; border-radius: 20px;
+font-family: ‘DM Mono’, monospace; font-size: 10px; font-weight: 500;
+letter-spacing: 1px;
+}
+.dist-1km { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.dist-2km { background: rgba(37,99,235,0.15); color: #3b82f6; }
+.dist-3km { background: rgba(245,158,11,0.12); color: var(–gold); }
+.dist-5km { background: rgba(239,68,68,0.12); color: var(–red); }
+.dist-10km { background: rgba(34,197,94,0.12); color: var(–green); }
+.dist-custom { background: rgba(168,85,247,0.12); color: #a855f7; }
+.delete-btn {
+background: none; border: none; color: var(–text3); cursor: pointer;
+padding: 4px 8px; border-radius: 6px; font-size: 14px; transition: var(–transition);
+}
+.delete-btn:hover { color: var(–red); background: rgba(239,68,68,0.1); }
 
-  /* PB LIST */
-  .pb-list { display: flex; flex-direction: column; gap: 12px; }
-  .pb-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 18px; background: var(--bg3);
-    border-radius: 10px; border: 1px solid var(--border);
-    transition: border-color var(--transition);
-  }
-  .pb-row:hover { border-color: var(--border2); }
-  .pb-dist { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; margin-bottom: 4px; }
-  .pb-time { font-size: 26px; font-weight: 900; color: var(--text); letter-spacing: -1px; line-height: 1; }
-  .pb-pace { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  .pb-date { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
+/* PB LIST */
+.pb-list { display: flex; flex-direction: column; gap: 12px; }
+.pb-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 18px; background: var(–bg3);
+border-radius: 10px; border: 1px solid var(–border);
+transition: border-color var(–transition);
+}
+.pb-row:hover { border-color: var(–border2); }
+.pb-dist { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text3); letter-spacing: 1px; margin-bottom: 4px; }
+.pb-time { font-size: 26px; font-weight: 900; color: var(–text); letter-spacing: -1px; line-height: 1; }
+.pb-pace { font-size: 11px; color: var(–text3); margin-top: 4px; }
+.pb-date { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–text3); }
 
-  /* EMPTY STATE */
-  .empty { text-align: center; padding: 60px 20px; color: var(--text3); }
-  .empty-icon { font-size: 44px; margin-bottom: 14px; }
-  .empty p { font-size: 13px; }
+/* EMPTY STATE */
+.empty { text-align: center; padding: 60px 20px; color: var(–text3); }
+.empty-icon { font-size: 44px; margin-bottom: 14px; }
+.empty p { font-size: 13px; }
 
-  /* MODAL */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(8px); z-index: 200;
-    display: none; align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg2); border: 1px solid var(--border2);
-    border-radius: 16px; padding: 32px; width: 100%;
-    max-width: 500px; margin: 20px;
-  }
-  .modal-title {
-    font-size: 20px; font-weight: 900; margin-bottom: 24px;
-    letter-spacing: 2px; text-transform: uppercase; color: var(--text);
-  }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+/* MODAL */
+.modal-overlay {
+position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+backdrop-filter: blur(8px); z-index: 200;
+display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+background: var(–bg2); border: 1px solid var(–border2);
+border-radius: 16px; padding: 32px; width: 100%;
+max-width: 500px; margin: 20px;
+}
+.modal-title {
+font-size: 20px; font-weight: 900; margin-bottom: 24px;
+letter-spacing: 2px; text-transform: uppercase; color: var(–text);
+}
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
 
-  /* TOOLTIP */
-  .tooltip-wrap { position: relative; }
-  .tooltip-wrap .tt {
-    position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
-    background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
-    font-size: 10px; padding: 5px 10px; border-radius: 6px; white-space: nowrap;
-    pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 10;
-    font-family: 'DM Mono', monospace;
-  }
-  .tooltip-wrap:hover .tt { opacity: 1; }
+/* TOOLTIP */
+.tooltip-wrap { position: relative; }
+.tooltip-wrap .tt {
+position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+background: var(–bg3); border: 1px solid var(–border2); color: var(–text);
+font-size: 10px; padding: 5px 10px; border-radius: 6px; white-space: nowrap;
+pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 10;
+font-family: ‘DM Mono’, monospace;
+}
+.tooltip-wrap:hover .tt { opacity: 1; }
 
-  /* PACE CALC */
-  .pace-calc { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
-  .pace-result {
-    font-size: 40px; font-weight: 900; color: var(--accent2);
-    margin-top: 14px; letter-spacing: -1px;
-  }
-  .pace-result-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; }
+/* PACE CALC */
+.pace-calc { background: var(–bg3); border: 1px solid var(–border); border-radius: 10px; padding: 22px; }
+.pace-result {
+font-size: 40px; font-weight: 900; color: var(–accent2);
+margin-top: 14px; letter-spacing: -1px;
+}
+.pace-result-label { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3); letter-spacing: 2px; text-transform: uppercase; }
 
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(–bg); }
+::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 2px; }
 
-  /* NOTIFICATION */
-  .notif {
-    position: fixed; bottom: 28px; right: 28px; background: var(--bg2);
-    border: 1px solid var(--accent); border-radius: 12px;
-    padding: 16px 22px; font-size: 13px; z-index: 999;
-    transform: translateY(80px); opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1); max-width: 300px;
-    box-shadow: 0 8px 32px var(--accent-glow);
-  }
-  .notif.show { transform: translateY(0); opacity: 1; }
-  .notif-title { font-weight: 700; color: var(--accent2); margin-bottom: 3px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+/* NOTIFICATION */
+.notif {
+position: fixed; bottom: 28px; right: 28px; background: var(–bg2);
+border: 1px solid var(–accent); border-radius: 12px;
+padding: 16px 22px; font-size: 13px; z-index: 999;
+transform: translateY(80px); opacity: 0;
+transition: all 0.3s cubic-bezier(0.4,0,0.2,1); max-width: 300px;
+box-shadow: 0 8px 32px var(–accent-glow);
+}
+.notif.show { transform: translateY(0); opacity: 1; }
+.notif-title { font-weight: 700; color: var(–accent2); margin-bottom: 3px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
 
-  /* SECTION DIVIDER */
-  .section-divider { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+/* SECTION DIVIDER */
+.section-divider { border: none; border-top: 1px solid var(–border); margin: 22px 0; }
 
-  /* BENCHMARK CARD */
-  .benchmark-table { width: 100%; border-collapse: collapse; }
-  .benchmark-table th {
-    font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
-    letter-spacing: 2px; text-transform: uppercase; padding: 8px 12px;
-    text-align: left; border-bottom: 1px solid var(--border);
-  }
-  .benchmark-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 12px; }
-  .benchmark-table tr:last-child td { border-bottom: none; }
-  .bm-level { display: flex; align-items: center; gap: 8px; }
-  .bm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .pace-compare-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 6px; position: relative; overflow: visible; }
-  .pace-compare-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.6s ease; }
-  .pace-compare-you { position: absolute; top: -4px; width: 12px; height: 12px; border-radius: 50%; background: white; border: 2px solid var(--accent); transform: translateX(-50%); transition: left 0.6s ease; }
-  .info-card { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
-  .info-card-title { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent3); margin-bottom: 8px; }
-  .info-card p { font-size: 12px; color: var(--text2); line-height: 1.7; }
+/* BENCHMARK CARD */
+.benchmark-table { width: 100%; border-collapse: collapse; }
+.benchmark-table th {
+font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3);
+letter-spacing: 2px; text-transform: uppercase; padding: 8px 12px;
+text-align: left; border-bottom: 1px solid var(–border);
+}
+.benchmark-table td { padding: 10px 12px; border-bottom: 1px solid var(–border); font-size: 12px; }
+.benchmark-table tr:last-child td { border-bottom: none; }
+.bm-level { display: flex; align-items: center; gap: 8px; }
+.bm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pace-compare-bar { height: 4px; border-radius: 2px; background: var(–border); margin-top: 6px; position: relative; overflow: visible; }
+.pace-compare-fill { height: 100%; border-radius: 2px; background: var(–accent); transition: width 0.6s ease; }
+.pace-compare-you { position: absolute; top: -4px; width: 12px; height: 12px; border-radius: 50%; background: white; border: 2px solid var(–accent); transform: translateX(-50%); transition: left 0.6s ease; }
+.info-card { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+.info-card-title { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(–accent3); margin-bottom: 8px; }
+.info-card p { font-size: 12px; color: var(–text2); line-height: 1.7; }
+
+/* HYROX */
+:root { –hyrox: #f97316; –hyrox-glow: rgba(249,115,22,0.25); –hyrox2: #fb923c; }
+.hyrox-accent { color: var(–hyrox); }
+.tab.hyrox-tab.active { color: var(–hyrox); border-bottom-color: var(–hyrox); }
+.tab.hyrox-tab:hover { color: var(–hyrox2); }
+.btn-hyrox { background: var(–hyrox); color: #fff; box-shadow: 0 0 20px var(–hyrox-glow); }
+.btn-hyrox:hover { background: var(–hyrox2); transform: translateY(-1px); box-shadow: 0 4px 24px var(–hyrox-glow); }
+
+/* COUNTDOWN */
+.countdown-banner {
+background: linear-gradient(135deg, rgba(249,115,22,0.1) 0%, rgba(249,115,22,0.04) 100%);
+border: 1px solid rgba(249,115,22,0.25); border-radius: var(–card-radius);
+padding: 20px 28px; margin-bottom: 22px;
+display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+}
+.countdown-left { display: flex; flex-direction: column; gap: 4px; }
+.countdown-label { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–hyrox); letter-spacing: 3px; text-transform: uppercase; }
+.countdown-event { font-size: 16px; font-weight: 800; color: var(–text); letter-spacing: 1px; }
+.countdown-date { font-family: ‘DM Mono’, monospace; font-size: 11px; color: var(–text3); }
+.countdown-digits { display: flex; gap: 12px; }
+.countdown-unit { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.countdown-num { font-size: 30px; font-weight: 900; color: var(–hyrox); letter-spacing: -1px; line-height: 1; font-family: ‘DM Mono’, monospace; }
+.countdown-unit-label { font-family: ‘DM Mono’, monospace; font-size: 8px; color: var(–text3); letter-spacing: 2px; text-transform: uppercase; }
+
+/* HYROX STATION GRID */
+.station-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+@media (max-width: 900px) { .station-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 520px) { .station-grid { grid-template-columns: repeat(2,1fr); } }
+.station-card {
+background: var(–bg2); border: 1px solid var(–border);
+border-radius: var(–card-radius); padding: 18px;
+cursor: pointer; transition: all var(–transition); position: relative; overflow: hidden;
+}
+.station-card:hover { border-color: var(–hyrox); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.15); }
+.station-card::before {
+content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+background: var(–hyrox); opacity: 0; transition: opacity var(–transition);
+}
+.station-card:hover::before { opacity: 1; }
+.station-num { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–text3); letter-spacing: 2px; margin-bottom: 6px; }
+.station-icon { font-size: 24px; margin-bottom: 8px; }
+.station-name { font-size: 12px; font-weight: 800; color: var(–text); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.station-desc { font-size: 10px; color: var(–text3); line-height: 1.5; margin-bottom: 10px; }
+.station-pb { font-family: ‘DM Mono’, monospace; font-size: 13px; color: var(–hyrox); font-weight: 600; }
+.station-pb-label { font-family: ‘DM Mono’, monospace; font-size: 8px; color: var(–text3); letter-spacing: 1px; }
+.station-log-btn {
+width: 100%; padding: 7px; border-radius: 6px; border: 1px solid rgba(249,115,22,0.3);
+background: rgba(249,115,22,0.06); color: var(–hyrox); font-size: 10px; font-weight: 700;
+cursor: pointer; font-family: ‘Inter’, sans-serif; transition: var(–transition); letter-spacing: 1px; text-transform: uppercase;
+margin-top: 10px;
+}
+.station-log-btn:hover { background: rgba(249,115,22,0.15); border-color: var(–hyrox); }
+
+/* HYROX HISTORY TABLE */
+.hrx-badge {
+display: inline-flex; align-items: center; gap: 4px;
+background: rgba(249,115,22,0.1); color: var(–hyrox);
+border: 1px solid rgba(249,115,22,0.25); border-radius: 4px;
+padding: 2px 8px; font-size: 9px; font-family: ‘DM Mono’, monospace;
+font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* BY-DISTANCE SELECTOR */
+.dist-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.dist-btn {
+padding: 8px 16px; border-radius: 8px; border: 1px solid var(–border2);
+background: transparent; color: var(–text3); font-size: 11px; font-weight: 700;
+cursor: pointer; transition: var(–transition); font-family: ‘Inter’, sans-serif;
+letter-spacing: 1px; text-transform: uppercase;
+}
+.dist-btn:hover { border-color: var(–accent); color: var(–accent2); }
+.dist-btn.active { background: rgba(37,99,235,0.12); border-color: var(–accent); color: var(–accent2); }
+
+/* HYROX MODAL FIELDS */
+.hyrox-modal-station-header {
+display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+background: rgba(249,115,22,0.06); border: 1px solid rgba(249,115,22,0.2);
+border-radius: 10px; margin-bottom: 20px;
+}
+.hyrox-modal-icon { font-size: 28px; }
+.hyrox-modal-station-name { font-size: 14px; font-weight: 900; color: var(–text); letter-spacing: 2px; text-transform: uppercase; }
+.hyrox-modal-station-desc { font-size: 11px; color: var(–text3); margin-top: 2px; }
+.calc-display-hrx {
+font-family: ‘DM Mono’, monospace; font-size: 16px; color: var(–hyrox);
+padding: 11px 14px; background: rgba(249,115,22,0.06);
+border: 1px solid rgba(249,115,22,0.2); border-radius: 8px;
+display: flex; align-items: center; gap: 8px;
+}
 </style>
+
 </head>
 <body>
 
 <!-- LOADING SCREEN -->
+
 <div id="app-loading">
   <div class="loading-logo">RUNTRACK</div>
   <div class="loading-sub">Lewis's Running Dashboard</div>
@@ -361,6 +452,7 @@
 </div>
 
 <!-- APP CONTENT -->
+
 <div id="app-content">
 
 <div class="header">
@@ -382,14 +474,17 @@
   <div class="tab active" onclick="showPage('dashboard',this)">Dashboard</div>
   <div class="tab" onclick="showPage('history',this)">History</div>
   <div class="tab" onclick="showPage('pbs',this)">Personal Bests</div>
+  <div class="tab" onclick="showPage('bydist',this)">By Distance</div>
   <div class="tab" onclick="showPage('analysis',this)">Analysis</div>
   <div class="tab" onclick="showPage('benchmarks',this)">Benchmarks</div>
   <div class="tab" onclick="showPage('calculator',this)">Calculator</div>
+  <div class="tab hyrox-tab" onclick="showPage('hyrox',this)">⚡ Hyrox</div>
 </div>
 
 <div class="main">
 
   <!-- DASHBOARD -->
+
   <div class="page active" id="page-dashboard">
     <div class="stat-grid" id="stat-grid"></div>
     <div class="grid-21">
@@ -419,6 +514,7 @@
   </div>
 
   <!-- HISTORY -->
+
   <div class="page" id="page-history">
     <div class="card" style="margin-bottom:20px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
@@ -462,6 +558,7 @@
   </div>
 
   <!-- PBS -->
+
   <div class="page" id="page-pbs">
     <div class="grid-2">
       <div>
@@ -484,6 +581,7 @@
   </div>
 
   <!-- ANALYSIS -->
+
   <div class="page" id="page-analysis">
     <div class="stat-grid" id="analysis-stats"></div>
     <div class="grid-2">
@@ -503,12 +601,14 @@
   </div>
 
   <!-- BENCHMARKS -->
+
   <div class="page" id="page-benchmarks">
     <div class="section-heading">How You Stack Up</div>
     <div id="benchmark-content"></div>
   </div>
 
   <!-- CALCULATOR -->
+
   <div class="page" id="page-calculator">
     <div class="grid-2">
       <div>
@@ -542,6 +642,21 @@
             </div>
             <div id="target-result" style="margin-top:16px"></div>
           </div>
+          <hr class="section-divider">
+          <div class="card-title">Pace ↔ Speed Converter</div>
+          <div class="pace-calc">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label class="form-label">Pace (mm:ss /km)</label>
+                <input type="text" class="form-input" id="conv-pace" placeholder="05:00" oninput="calcConvFromPace()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Speed (km/h)</label>
+                <input type="number" class="form-input" id="conv-kmh" placeholder="12.0" step="0.1" oninput="calcConvFromKmh()">
+              </div>
+            </div>
+            <div id="conv-result" style="margin-top:14px"></div>
+          </div>
         </div>
       </div>
       <div>
@@ -553,10 +668,45 @@
     </div>
   </div>
 
+  <!-- BY DISTANCE -->
+
+  <div class="page" id="page-bydist">
+    <div class="dist-selector" id="bydist-selector"></div>
+    <div id="bydist-content"></div>
+  </div>
+
+  <!-- HYROX -->
+
+  <div class="page" id="page-hyrox">
+    <div class="countdown-banner" id="hyrox-countdown"></div>
+    <div class="section-heading">Training Stations</div>
+    <div class="station-grid" id="hyrox-station-grid"></div>
+    <div class="grid-2" style="margin-top:8px">
+      <div class="card">
+        <div class="card-title">Station PB Chart <span style="font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0"> (seconds)</span></div>
+        <div class="chart-container" style="height:220px"><canvas id="hrxPBChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Session History</div>
+        <div id="hrx-recent"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title" id="hrx-trend-title">Trend Over Time</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="hrx-trend-selector"></div>
+      <div class="chart-container" style="height:180px"><canvas id="hrxTrendChart"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Benchmarks & Where You Stand</div>
+      <div id="hrx-benchmarks"></div>
+    </div>
+  </div>
+
 </div><!-- /main -->
 </div><!-- /app-content -->
 
 <!-- LOG RUN MODAL -->
+
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-title">Log a Run</div>
@@ -612,13 +762,59 @@
   </div>
 </div>
 
+<!-- HYROX LOG MODAL -->
+
+<div class="modal-overlay" id="hrx-modal-overlay">
+  <div class="modal" style="max-width:480px">
+    <div class="hyrox-modal-station-header">
+      <div class="hyrox-modal-icon" id="hrx-modal-icon">⛷️</div>
+      <div>
+        <div class="hyrox-modal-station-name" id="hrx-modal-name">SkiErg</div>
+        <div class="hyrox-modal-station-desc" id="hrx-modal-desc">1000m · Concept2</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="hrx-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time <span style="color:var(--text3)">mm:ss</span></label>
+        <input type="text" class="form-input" id="hrx-time" placeholder="e.g. 4:30" oninput="updateHrxCalc()">
+      </div>
+      <div class="form-group" id="hrx-damper-group" style="display:none">
+        <label class="form-label">Damper Setting <span style="color:var(--text3)">(1–10)</span></label>
+        <input type="number" class="form-input" id="hrx-damper" placeholder="e.g. 4" min="1" max="10">
+      </div>
+      <div class="form-group" id="hrx-weight-group" style="display:none">
+        <label class="form-label" id="hrx-weight-label">Weight (kg)</label>
+        <input type="number" class="form-input" id="hrx-weight" placeholder="e.g. 24" step="0.5" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="hrx-metric-label">Auto-calculated Metric</label>
+        <div class="calc-display-hrx" id="hrx-auto-metric"><span style="opacity:0.4">Enter time above</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes <span style="color:var(--text3)">(optional)</span></label>
+        <input type="text" class="form-input" id="hrx-notes" placeholder="How did it feel?">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeHrxModal()">Cancel</button>
+      <button class="btn btn-hyrox" onclick="saveHrx()">Save Session</button>
+    </div>
+  </div>
+</div>
+
 <!-- NOTIFICATION -->
+
 <div class="notif" id="notif">
   <div class="notif-title" id="notif-title"></div>
   <div id="notif-body" style="color:var(--text2);font-size:12px"></div>
 </div>
 
 <!-- Firebase SDK -->
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -633,54 +829,87 @@
     measurementId: "G-5SHBP3D9WM"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const runsCol = collection(db, "runs");
-
-  function setSyncStatus(state) {
-    const dot = document.getElementById('sync-dot');
-    const label = document.getElementById('sync-label');
-    if (state === 'synced') { dot.className='sync-dot synced'; label.textContent='SYNCED'; }
-    else if (state === 'syncing') { dot.className='sync-dot syncing'; label.textContent='SYNCING…'; }
-    else { dot.className='sync-dot'; label.textContent='OFFLINE'; }
+  function revealApp() {
+    document.getElementById('app-loading').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
   }
 
-  // Real-time listener
-  onSnapshot(runsCol, (snapshot) => {
-    window.runs = snapshot.docs.map(d => ({ ...d.data(), _id: d.id }));
-    setSyncStatus('synced');
-    const activePage = document.querySelector('.tab.active');
-    const pageId = activePage ? activePage.textContent.trim().toLowerCase().replace(' ','') : 'dashboard';
-    if (window._appReady) {
-      const map = {
-        'dashboard': () => window.renderDashboard(),
-        'history': () => window.renderHistory(),
-        'personalbests': () => window.renderPBs(),
-        'analysis': () => window.renderAnalysis(),
-        'benchmarks': () => window.renderBenchmarks(),
-        'calculator': () => window.renderCalc(),
-      };
-      (map[pageId] || map['dashboard'])();
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const runsCol = collection(db, "runs");
+
+    function setSyncStatus(state) {
+      const dot = document.getElementById('sync-dot');
+      const label = document.getElementById('sync-label');
+      if (state === 'synced') { dot.className='sync-dot synced'; label.textContent='SYNCED'; }
+      else if (state === 'syncing') { dot.className='sync-dot syncing'; label.textContent='SYNCING…'; }
+      else { dot.className='sync-dot'; label.textContent='OFFLINE'; }
     }
-  }, (err) => { setSyncStatus('offline'); console.error(err); });
 
-  // Expose DB ops to global scope
-  window._firestore = { db, runsCol, addDoc, deleteDoc, doc, serverTimestamp };
-  window._fbReady = true;
+    // Real-time listener — runs
+    onSnapshot(runsCol, (snapshot) => {
+      window.runs = snapshot.docs.map(d => ({ ...d.data(), _id: d.id }));
+      setSyncStatus('synced');
+      const activePage = document.querySelector('.tab.active');
+      const pageId = activePage ? activePage.textContent.trim().toLowerCase().replace(/[^a-z]/g,'') : 'dashboard';
+      if (window._appReady) {
+        const map = {
+          'dashboard': () => window.renderDashboard(),
+          'history': () => window.renderHistory(),
+          'personalbests': () => window.renderPBs(),
+          'bydistance': () => window.renderByDist(),
+          'analysis': () => window.renderAnalysis(),
+          'benchmarks': () => window.renderBenchmarks(),
+          'calculator': () => window.renderCalc(),
+          'hyrox': () => window.renderHyrox(),
+        };
+        (map[pageId] || map['dashboard'])();
+      }
+    }, (err) => { setSyncStatus('offline'); console.error(err); });
 
-  // Show app when Firebase is ready
-  document.getElementById('app-loading').style.display = 'none';
-  document.getElementById('app-content').style.display = 'block';
-  window._appReady = true;
-  window.renderDashboard();
+    // Real-time listener — hyrox sessions
+    const hyroxCol = collection(db, "hyrox");
+    onSnapshot(hyroxCol, (snapshot) => {
+      window.hyroxSessions = snapshot.docs.map(d => ({ ...d.data(), _id: d.id }));
+      const activePage = document.querySelector('.tab.active');
+      const pageId = activePage ? activePage.textContent.trim().toLowerCase().replace(/[^a-z]/g,'') : '';
+      if (window._appReady && pageId === 'hyrox') window.renderHyrox();
+    }, (err) => { console.error('hyrox listener:', err); });
+
+    // Expose DB ops to global scope
+    window._firestore = { db, runsCol, hyroxCol, addDoc, deleteDoc, doc, serverTimestamp };
+    window._fbReady = true;
+  } catch (err) {
+    console.error('Firebase init error:', err);
+  } finally {
+    // Always reveal the app — even if Firebase fails
+    revealApp();
+    window._appReady = true;
+    window.renderDashboard();
+  }
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
 <script>
 // ============================================================
 // STATE
 // ============================================================
 window.runs = window.runs || [];
+window.hyroxSessions = window.hyroxSessions || [];
+
+// Safety net: if the Firebase module fails to load entirely (CDN down, import error),
+// the loading screen would never be dismissed. Reveal the app after 6 seconds regardless.
+setTimeout(function() {
+  const loading = document.getElementById('app-loading');
+  if (loading && loading.style.display !== 'none') {
+    loading.style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    window._appReady = true;
+    if (window.renderDashboard) window.renderDashboard();
+  }
+}, 2000);
 
 // ============================================================
 // HELPERS
@@ -764,9 +993,11 @@ function showPage(id, el) {
   if (id === 'dashboard') renderDashboard();
   if (id === 'history') renderHistory();
   if (id === 'pbs') renderPBs();
+  if (id === 'bydist') renderByDist();
   if (id === 'analysis') renderAnalysis();
   if (id === 'benchmarks') renderBenchmarks();
   if (id === 'calculator') renderCalc();
+  if (id === 'hyrox') renderHyrox();
 }
 
 // ============================================================
@@ -1140,7 +1371,7 @@ window.renderAnalysis = function() {
 const BENCHMARKS = {
   1: {
     label: '1km',
-info: "The 1km is a pure speed event. Elite times sit around 2:30 for men. A good recreational time is under 4:30. Pace strategy matters a lot — too fast early and you'll blow up.",
+    info: 'The 1km is a pure speed event. Elite times sit around 2:30 for men. A good recreational time is under 4:30. Pace strategy matters a lot — too fast early and you'll blow up.',
     levels: [
       { name:'World-class', range:'2:10–2:30', pace:'2:10–2:30', color:'#ef4444' },
       { name:'Elite Club Runner', range:'2:30–3:00', pace:'2:30–3:00', color:'#f97316' },
@@ -1441,7 +1672,419 @@ window.showNotif = showNotif;
 // ============================================================
 // INIT
 // ============================================================
-document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+// ============================================================
+// PACE ↔ SPEED CONVERTERS
+// ============================================================
+function calcConvFromPace() {
+  document.getElementById('conv-kmh').value = '';
+  const p = document.getElementById('conv-pace').value.trim();
+  const res = document.getElementById('conv-result');
+  if (!p) { res.innerHTML=''; return; }
+  const secs = paceToSecs(p);
+  if (!secs || secs >= 9999) { res.innerHTML=''; return; }
+  const kmh = +(3600 / secs).toFixed(2);
+  const mph = +(kmh / 1.60934).toFixed(2);
+  res.innerHTML = `<div class="pace-result-label">SPEED</div><div class="pace-result">${kmh} <span style="font-size:16px;color:var(--text3)">km/h</span></div><div style="margin-top:6px;font-size:13px;color:var(--text3)">${mph} mph &nbsp;·&nbsp; ${(secs/60).toFixed(2)} min/km</div>`;
+}
+window.calcConvFromPace = calcConvFromPace;
+
+function calcConvFromKmh() {
+  document.getElementById('conv-pace').value = '';
+  const kmh = parseFloat(document.getElementById('conv-kmh').value);
+  const res = document.getElementById('conv-result');
+  if (!kmh || kmh <= 0) { res.innerHTML=''; return; }
+  const secsPerKm = 3600 / kmh;
+  const pace = formatTime(Math.round(secsPerKm));
+  const mph = +(kmh / 1.60934).toFixed(2);
+  res.innerHTML = `<div class="pace-result-label">PACE</div><div class="pace-result">${pace} <span style="font-size:16px;color:var(--text3)">/km</span></div><div style="margin-top:6px;font-size:13px;color:var(--text3)">${mph} mph</div>`;
+}
+window.calcConvFromKmh = calcConvFromKmh;
+
+// ============================================================
+// BY DISTANCE
+// ============================================================
+window._byDistSelected = null;
+window.renderByDist = function() {
+  const dists = [...new Set(window.runs.map(r => parseFloat(r.dist)))].sort((a,b)=>a-b);
+  if (!dists.length) {
+    document.getElementById('bydist-selector').innerHTML = '';
+    document.getElementById('bydist-content').innerHTML = `<div class="empty"><div class="empty-icon">📏</div><p>Log some runs to see per-distance stats</p></div>`;
+    return;
+  }
+  if (!window._byDistSelected || !dists.includes(window._byDistSelected)) window._byDistSelected = dists[0];
+  document.getElementById('bydist-selector').innerHTML = dists.map(d =>
+    `<button class="dist-btn${d===window._byDistSelected?' active':''}" onclick="selectDist(${d})">${distLabel(d)}</button>`
+  ).join('');
+  renderByDistContent(window._byDistSelected);
+}
+window.selectDist = function(d) {
+  window._byDistSelected = d;
+  renderByDist();
+}
+
+function renderByDistContent(d) {
+  const runs = window.runs.filter(r => parseFloat(r.dist) === d).sort((a,b) => a.date.localeCompare(b.date));
+  const el = document.getElementById('bydist-content');
+  if (!runs.length) { el.innerHTML=`<div class="empty"><p>No runs logged at ${distLabel(d)}</p></div>`; return; }
+
+  const times = runs.map(r => parseTime(r.time)).filter(Boolean);
+  const paces = runs.map(r => paceToSecs(r.pace || calcPaceStr(d, parseTime(r.time)))).filter(Boolean);
+  const best = Math.min(...times), worst = Math.max(...times);
+  const bestPace = Math.min(...paces), worstPace = Math.max(...paces);
+  const avgPace = Math.round(paces.reduce((a,b)=>a+b,0)/paces.length);
+
+  el.innerHTML = `
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="card"><div class="card-label">Runs at ${distLabel(d)}</div><div class="card-value navy">${runs.length}</div></div>
+      <div class="card"><div class="card-label">PB Time</div><div class="card-value">${formatTime(best)}</div><div class="card-sub">Best time</div></div>
+      <div class="card"><div class="card-label">Best Pace</div><div class="card-value">${formatTime(bestPace)}</div><div class="card-sub">min/km</div></div>
+      <div class="card"><div class="card-label">Avg Pace</div><div class="card-value">${formatTime(avgPace)}</div><div class="card-sub">min/km · all ${distLabel(d)}</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Pace Trend <span style="font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0"> (${distLabel(d)} · min/km)</span></div>
+        <div class="chart-container" style="height:200px"><canvas id="bdPaceChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Time Trend <span style="font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0"> (${distLabel(d)})</span></div>
+        <div class="chart-container" style="height:200px"><canvas id="bdTimeChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">All ${distLabel(d)} Runs</div>
+      <div style="overflow-x:auto">
+        <table class="runs-table">
+          <thead><tr><th>Date</th><th>Time</th><th>Pace</th><th>Terrain</th><th>Notes</th></tr></thead>
+          <tbody>${runs.slice().reverse().map((r,i) => {
+            const isPB = parseTime(r.time) === best;
+            const pace = r.pace || calcPaceStr(d, parseTime(r.time)||0);
+            return `<tr>
+              <td style="color:var(--text)">${new Date(r.date+'T00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</td>
+              <td style="font-family:'DM Mono',monospace;color:var(--text)">${r.time}${isPB?` <span class="pb-badge">★ PB</span>`:''}</td>
+              <td style="font-family:'DM Mono',monospace;color:var(--accent2)">${pace}<span style="color:var(--text3);font-size:10px"> /km</span></td>
+              <td>${r.form||'—'}</td>
+              <td style="color:var(--text3);font-size:12px">${r.notes||''}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Charts
+  setTimeout(() => {
+    destroyChart('bdPace'); destroyChart('bdTime');
+    const labels = runs.map(r => { const dt=new Date(r.date+'T00:00'); return`${dt.getDate()}/${dt.getMonth()+1}`; });
+    const paceData = runs.map(r => { const ps=paceToSecs(r.pace||calcPaceStr(d,parseTime(r.time))); return +(ps/60).toFixed(3); });
+    const timeData = runs.map(r => parseTime(r.time)/60);
+
+    const ctx1 = document.getElementById('bdPaceChart').getContext('2d');
+    const g1 = ctx1.createLinearGradient(0,0,0,200);
+    g1.addColorStop(0,'rgba(37,99,235,0.3)'); g1.addColorStop(1,'rgba(37,99,235,0)');
+    const defs1 = chartDefaults(); defs1.scales.y.reverse = true;
+    defs1.scales.y.ticks.callback = v => `${Math.floor(v)}:${String(Math.round((v%1)*60)).padStart(2,'0')}`;
+    chartInstances['bdPace'] = new Chart(ctx1, { type:'line', data:{ labels, datasets:[{ data:paceData, borderColor:'#3b82f6', backgroundColor:g1, tension:0.4, pointBackgroundColor:'#3b82f6', pointRadius:4, fill:true }] }, options:{...defs1} });
+
+    const ctx2 = document.getElementById('bdTimeChart').getContext('2d');
+    const g2 = ctx2.createLinearGradient(0,0,0,200);
+    g2.addColorStop(0,'rgba(245,158,11,0.3)'); g2.addColorStop(1,'rgba(245,158,11,0)');
+    const defs2 = chartDefaults(); defs2.scales.y.reverse = true;
+    defs2.scales.y.ticks.callback = v => `${Math.floor(v)}:${String(Math.round((v%1)*60)).padStart(2,'0')}`;
+    chartInstances['bdTime'] = new Chart(ctx2, { type:'line', data:{ labels, datasets:[{ data:timeData, borderColor:'#f59e0b', backgroundColor:g2, tension:0.4, pointBackgroundColor:'#f59e0b', pointRadius:4, fill:true }] }, options:{...defs2} });
+  }, 50);
+}
+
+// ============================================================
+// HYROX DATA
+// ============================================================
+const HYROX_STATIONS = {
+  skierg:      { name:'SkiErg',           station:1, icon:'⛷️',  desc:'1000m · Concept2 SkiErg',         dist:1000, unit:'m',    damper:true,  weight:false, calc:'pace500',   metricLabel:'Pace /500m', benchmarks:[{n:'Elite/Pro',r:'2:50–3:30',c:'#ef4444',max:210},{n:'Competitive',r:'3:30–4:15',c:'#f97316',max:255},{n:'Good Recreational',r:'4:15–5:00',c:'#f59e0b',max:300},{n:'Average',r:'5:00–6:00',c:'#22c55e',max:360},{n:'Beginner',r:'6:00+',c:'#3b82f6',max:999}], elite:210, slow:360, tip:'Go 5–10 sec/500m slower than you think. It pays dividends on the run after. Damper 3–5 suits most athletes.' },
+  sledpush:    { name:'Sled Push',         station:2, icon:'🛷',  desc:'50m · 4×12.5m shuttles',          dist:50,   unit:'m',    damper:false, weight:true,  calc:'mpermin',   metricLabel:'m/min',     wLabel:'Total sled weight (kg)', wDefault:'152', benchmarks:[{n:'Elite/Pro',r:'1:00–1:30',c:'#ef4444',max:90},{n:'Competitive',r:'1:30–2:15',c:'#f97316',max:135},{n:'Good Recreational',r:'2:15–3:00',c:'#f59e0b',max:180},{n:'Average',r:'3:00–4:30',c:'#22c55e',max:270},{n:'Beginner',r:'4:30+',c:'#3b82f6',max:999}], elite:90, slow:270, tip:'Men Open: 152kg · Pro: 202kg · Women Open: 102kg. Grip shoes + hips low = speed. Surface varies a lot on race day.' },
+  sledpull:    { name:'Sled Pull',         station:3, icon:'🪢',  desc:'50m · backwards rope pull',       dist:50,   unit:'m',    damper:false, weight:true,  calc:'mpermin',   metricLabel:'m/min',     wLabel:'Total sled weight (kg)', wDefault:'102', benchmarks:[{n:'Elite/Pro',r:'1:15–1:45',c:'#ef4444',max:105},{n:'Competitive',r:'1:45–2:30',c:'#f97316',max:150},{n:'Good Recreational',r:'2:30–3:30',c:'#f59e0b',max:210},{n:'Average',r:'3:30–5:00',c:'#22c55e',max:300},{n:'Beginner',r:'5:00+',c:'#3b82f6',max:999}], elite:105, slow:300, tip:'Men Open: 102kg · Pro: 152kg · Women Open: 78kg. Pull harder than push for most athletes — train the ratio.' },
+  burpeejumps: { name:'Burpee Broad Jumps',station:4, icon:'🐸',  desc:'80m · burpee + forward jump',     dist:80,   unit:'m',    damper:false, weight:false, calc:'mpermin',   metricLabel:'m/min',     benchmarks:[{n:'Elite/Pro',r:'2:00–3:00',c:'#ef4444',max:180},{n:'Competitive',r:'3:00–4:00',c:'#f97316',max:240},{n:'Good Recreational',r:'4:00–5:30',c:'#f59e0b',max:330},{n:'Average',r:'5:30–7:30',c:'#22c55e',max:450},{n:'Beginner',r:'7:30+',c:'#3b82f6',max:999}], elite:180, slow:450, tip:'Biggest time gap between average and elite. Rhythm over explosion. Smooth burpee transition is the key.' },
+  rowerg:      { name:'RowErg',            station:5, icon:'🚣',  desc:'1000m · Concept2 RowErg',         dist:1000, unit:'m',    damper:true,  weight:false, calc:'pace500',   metricLabel:'Pace /500m', benchmarks:[{n:'Elite/Pro',r:'1:30–1:50',c:'#ef4444',max:110},{n:'Competitive',r:'1:50–2:10',c:'#f97316',max:130},{n:'Good Recreational',r:'2:10–2:30',c:'#f59e0b',max:150},{n:'Average',r:'2:30–3:00',c:'#22c55e',max:180},{n:'Beginner',r:'3:00+',c:'#3b82f6',max:999}], elite:110, slow:180, tip:'Don\'t over-row — 5 sec/500m saved can give back 30s on the next km. Damper 4–6 suits most. Pacing is everything here.' },
+  farmerscarry:{ name:'Farmers Carry',     station:6, icon:'🏋️', desc:'200m · two kettlebells at sides',  dist:200,  unit:'m',    damper:false, weight:true,  calc:'mpermin',   metricLabel:'m/min',     wLabel:'Weight per hand (kg)', wDefault:'24', benchmarks:[{n:'Elite/Pro',r:'1:15–1:45',c:'#ef4444',max:105},{n:'Competitive',r:'1:45–2:15',c:'#f97316',max:135},{n:'Good Recreational',r:'2:15–3:00',c:'#f59e0b',max:180},{n:'Average',r:'3:00–4:00',c:'#22c55e',max:240},{n:'Beginner',r:'4:00+',c:'#3b82f6',max:999}], elite:105, slow:240, tip:'Men Open: 2×24kg · Pro: 2×32kg · Women Open: 2×16kg. Usually the quickest station — push the pace here, keep unbroken.' },
+  lunge:       { name:'Sandbag Lunges',    station:7, icon:'💼',  desc:'100m · sandbag on back',          dist:100,  unit:'m',    damper:false, weight:true,  calc:'mpermin',   metricLabel:'m/min',     wLabel:'Sandbag weight (kg)', wDefault:'20', benchmarks:[{n:'Elite/Pro',r:'2:30–3:30',c:'#ef4444',max:210},{n:'Competitive',r:'3:30–4:30',c:'#f97316',max:270},{n:'Good Recreational',r:'4:30–6:00',c:'#f59e0b',max:360},{n:'Average',r:'6:00–8:00',c:'#22c55e',max:480},{n:'Beginner',r:'8:00+',c:'#3b82f6',max:999}], elite:210, slow:480, tip:'Men Open: 20kg · Pro: 30kg · Women Open: 10kg. Even stride length and no stopping = time saved. This is a quad destroyer.' },
+  wallballs:   { name:'Wall Balls',        station:8, icon:'🏀',  desc:'100 reps · 3m target',            dist:null, reps:100, unit:'reps', damper:false, weight:true,  calc:'repspermin',metricLabel:'reps/min',  wLabel:'Ball weight (kg)', wDefault:'6', benchmarks:[{n:'Elite/Pro',r:'3:00–4:30',c:'#ef4444',max:270},{n:'Competitive',r:'4:30–6:00',c:'#f97316',max:360},{n:'Good Recreational',r:'6:00–7:30',c:'#f59e0b',max:450},{n:'Average',r:'7:30–10:00',c:'#22c55e',max:600},{n:'Beginner',r:'10:00+',c:'#3b82f6',max:999}], elite:270, slow:600, tip:'Men Open: 6kg · Pro: 9kg · Women Open: 4kg. Do NOT set the ball down — fatigue spikes immediately. Build big first sets.' },
+};
+window.HYROX_STATIONS = HYROX_STATIONS;
+window.hyroxSessions = window.hyroxSessions || [];
+window._hrxModalStation = null;
+window._hrxTrendStation = 'skierg';
+
+// ============================================================
+// HYROX RENDER
+// ============================================================
+window.renderHyrox = function() {
+  renderHyroxCountdown();
+  renderHyroxStationGrid();
+  renderHyrxPBChart();
+  renderHrxRecent();
+  renderHrxTrendSelector();
+  renderHrxTrendChart(window._hrxTrendStation);
+  renderHrxBenchmarks();
+}
+
+function renderHyroxCountdown() {
+  const target = new Date('2026-07-01T08:00:00+10:00');
+  const now = new Date();
+  const diff = target - now;
+  const el = document.getElementById('hyrox-countdown');
+  if (diff <= 0) {
+    el.innerHTML = `<div class="countdown-left"><div class="countdown-label">Sydney Hyrox</div><div class="countdown-event">HYROX Sydney 2026</div><div class="countdown-date">1 July 2026 · ICC Sydney</div></div><div style="font-size:14px;font-weight:700;color:var(--hyrox)">Race day! 🔥</div>`;
+    return;
+  }
+  const days = Math.floor(diff / 86400000);
+  const hrs = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  el.innerHTML = `
+    <div class="countdown-left">
+      <div class="countdown-label">⚡ Next Event</div>
+      <div class="countdown-event">HYROX Sydney 2026</div>
+      <div class="countdown-date">1 July 2026 · ICC Sydney Exhibition Centre</div>
+    </div>
+    <div class="countdown-digits">
+      <div class="countdown-unit"><div class="countdown-num" id="cd-days">${days}</div><div class="countdown-unit-label">Days</div></div>
+      <div class="countdown-unit"><div class="countdown-num" id="cd-hrs">${String(hrs).padStart(2,'0')}</div><div class="countdown-unit-label">Hours</div></div>
+      <div class="countdown-unit"><div class="countdown-num" id="cd-mins">${String(mins).padStart(2,'0')}</div><div class="countdown-unit-label">Mins</div></div>
+      <div class="countdown-unit"><div class="countdown-num" id="cd-secs">${String(secs).padStart(2,'0')}</div><div class="countdown-unit-label">Secs</div></div>
+    </div>`;
+  if (!window._cdInterval) {
+    window._cdInterval = setInterval(() => {
+      if (!document.getElementById('cd-secs')) { clearInterval(window._cdInterval); window._cdInterval=null; return; }
+      const d2 = new Date('2026-07-01T08:00:00+10:00') - new Date();
+      if (d2<=0) { clearInterval(window._cdInterval); window._cdInterval=null; return; }
+      const ds=Math.floor(d2/86400000),hs=Math.floor((d2%86400000)/3600000),ms=Math.floor((d2%3600000)/60000),ss=Math.floor((d2%60000)/1000);
+      const el2=document.getElementById('cd-days'); if(el2){el2.textContent=ds;}
+      const el3=document.getElementById('cd-hrs'); if(el3){el3.textContent=String(hs).padStart(2,'0');}
+      const el4=document.getElementById('cd-mins'); if(el4){el4.textContent=String(ms).padStart(2,'0');}
+      const el5=document.getElementById('cd-secs'); if(el5){el5.textContent=String(ss).padStart(2,'0');}
+    }, 1000);
+  }
+}
+
+function getHrxPB(stationKey) {
+  const sessions = window.hyroxSessions.filter(s => s.station === stationKey);
+  if (!sessions.length) return null;
+  return sessions.reduce((best, s) => {
+    const t = parseTime(s.time); if (!t) return best;
+    if (!best) return s;
+    return t < parseTime(best.time) ? s : best;
+  }, null);
+}
+
+function hrxCalcMetric(station, timeSecs) {
+  const s = HYROX_STATIONS[station];
+  if (!s || !timeSecs) return null;
+  if (s.calc === 'pace500') {
+    const pace500 = timeSecs / (s.dist / 500);
+    return { value: formatTime(Math.round(pace500)), label: s.metricLabel };
+  } else if (s.calc === 'mpermin') {
+    const mpm = (s.dist / timeSecs * 60).toFixed(1);
+    return { value: mpm, label: s.metricLabel };
+  } else if (s.calc === 'repspermin') {
+    const rpm = (s.reps / timeSecs * 60).toFixed(1);
+    return { value: rpm, label: s.metricLabel };
+  }
+  return null;
+}
+
+function renderHyroxStationGrid() {
+  const el = document.getElementById('hyrox-station-grid');
+  el.innerHTML = Object.entries(HYROX_STATIONS).map(([key, s]) => {
+    const pb = getHrxPB(key);
+    const metric = pb ? hrxCalcMetric(key, parseTime(pb.time)) : null;
+    return `<div class="station-card" onclick="openHrxModal('${key}')">
+      <div class="station-num">STATION ${s.station}</div>
+      <div class="station-icon">${s.icon}</div>
+      <div class="station-name">${s.name}</div>
+      <div class="station-desc">${s.desc}</div>
+      ${pb ? `<div class="station-pb-label">PB TIME</div><div class="station-pb">${pb.time}</div>${metric?`<div class="station-pb-label" style="margin-top:4px">${metric.label.toUpperCase()}</div><div class="station-pb" style="font-size:11px">${metric.value}</div>`:''}`
+             : `<div class="station-pb-label" style="color:var(--text3)">No sessions yet</div>`}
+      <button class="station-log-btn" onclick="event.stopPropagation();openHrxModal('${key}')">+ Log Session</button>
+    </div>`;
+  }).join('');
+}
+
+function renderHyrxPBChart() {
+  destroyChart('hrxPB');
+  const keys = Object.keys(HYROX_STATIONS);
+  const labels = keys.map(k => HYROX_STATIONS[k].name.replace(' ','\n'));
+  const data = keys.map(k => { const pb=getHrxPB(k); return pb ? parseTime(pb.time) : null; });
+  const colors = ['rgba(249,115,22,0.7)','rgba(251,146,60,0.7)','rgba(252,165,89,0.7)','rgba(245,158,11,0.7)','rgba(249,115,22,0.7)','rgba(251,146,60,0.7)','rgba(252,165,89,0.7)','rgba(245,158,11,0.7)'];
+  const ctx = document.getElementById('hrxPBChart').getContext('2d');
+  const defs = chartDefaults();
+  defs.scales.y.ticks.callback = v => `${Math.floor(v/60)}:${String(v%60).padStart(2,'0')}`;
+  chartInstances['hrxPB'] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: keys.map(k=>HYROX_STATIONS[k].name), datasets:[{ data, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
+    options:{ ...defs, plugins:{...defs.plugins, tooltip:{...defs.plugins.tooltip, callbacks:{label:c=>c.raw?`${Math.floor(c.raw/60)}:${String(c.raw%60).padStart(2,'0')}`:'No data'}}} }
+  });
+}
+
+function renderHrxRecent() {
+  const el = document.getElementById('hrx-recent');
+  const recent = [...window.hyroxSessions].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8);
+  if (!recent.length) { el.innerHTML=`<div class="empty"><div class="empty-icon">⚡</div><p>Log your first Hyrox session</p></div>`; return; }
+  el.innerHTML = recent.map(s => {
+    const st = HYROX_STATIONS[s.station];
+    const metric = hrxCalcMetric(s.station, parseTime(s.time));
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:18px">${st?st.icon:'⚡'}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:var(--text)">${st?st.name:s.station}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${s.date}${s.weight?` · ${s.weight}kg`:''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--hyrox)">${s.time}</div>
+        ${metric?`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${metric.value} ${metric.label}</div>`:''}
+      </div>
+      <button class="delete-btn" onclick="deleteHrx('${s._id}')" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderHrxTrendSelector() {
+  const el = document.getElementById('hrx-trend-selector');
+  el.innerHTML = Object.entries(HYROX_STATIONS).map(([key,s]) =>
+    `<button class="dist-btn${key===window._hrxTrendStation?' active':''}" style="border-color:${key===window._hrxTrendStation?'var(--hyrox)':'var(--border2)'};color:${key===window._hrxTrendStation?'var(--hyrox)':'var(--text3)'}" onclick="selectHrxTrend('${key}')">${s.icon} ${s.name}</button>`
+  ).join('');
+}
+
+window.selectHrxTrend = function(key) {
+  window._hrxTrendStation = key;
+  renderHrxTrendSelector();
+  renderHrxTrendChart(key);
+}
+
+function renderHrxTrendChart(key) {
+  destroyChart('hrxTrend');
+  const s = HYROX_STATIONS[key];
+  document.getElementById('hrx-trend-title').textContent = `${s.name} — Trend Over Time`;
+  const sessions = [...window.hyroxSessions].filter(x=>x.station===key).sort((a,b)=>a.date.localeCompare(b.date));
+  if (!sessions.length) return;
+  const labels = sessions.map(x => { const d=new Date(x.date+'T00:00'); return `${d.getDate()}/${d.getMonth()+1}`; });
+  const data = sessions.map(x => parseTime(x.time));
+  const ctx = document.getElementById('hrxTrendChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,180);
+  grad.addColorStop(0,'rgba(249,115,22,0.3)'); grad.addColorStop(1,'rgba(249,115,22,0)');
+  const defs = chartDefaults(); defs.scales.y.reverse = true;
+  defs.scales.y.ticks.callback = v => `${Math.floor(v/60)}:${String(v%60).padStart(2,'0')}`;
+  chartInstances['hrxTrend'] = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ data, borderColor:'#f97316', backgroundColor:grad, tension:0.4, pointBackgroundColor:'#f97316', pointRadius:5, fill:true }] },
+    options:{ ...defs, plugins:{...defs.plugins, tooltip:{...defs.plugins.tooltip, callbacks:{label:c=>c.raw?`${Math.floor(c.raw/60)}:${String(c.raw%60).padStart(2,'0')}`:''}}} }
+  });
+}
+
+function renderHrxBenchmarks() {
+  const el = document.getElementById('hrx-benchmarks');
+  el.innerHTML = Object.entries(HYROX_STATIONS).map(([key,s]) => {
+    const pb = getHrxPB(key);
+    const pbSecs = pb ? parseTime(pb.time) : null;
+    const metric = pb ? hrxCalcMetric(key, pbSecs) : null;
+    let myLevel = null;
+    if (pbSecs) {
+      for (let i=0;i<s.benchmarks.length;i++) { if (pbSecs <= s.benchmarks[i].max*60/60) { myLevel=i; break; } }
+      // Actually compare in seconds directly to max (benchmarks max are in seconds)
+      myLevel = null;
+      for (let i=0;i<s.benchmarks.length;i++) { if (pbSecs <= s.benchmarks[i].max) { myLevel=i; break; } }
+      if (myLevel===null) myLevel=s.benchmarks.length-1;
+    }
+    let barPct = null;
+    if (pbSecs) barPct = Math.min(100, Math.max(0, ((pbSecs-s.elite)/(s.slow-s.elite))*100));
+    return `<div style="padding:18px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">${s.icon}</span>
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase">Station ${s.station} · ${s.name}</div>
+            <div style="font-size:10px;color:var(--text3)">${s.desc}</div>
+          </div>
+        </div>
+        ${pb ? `<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--hyrox)">YOUR PB: ${pb.time}${metric?` · ${metric.value} ${metric.label}`:''}</div>` : `<div style="font-size:10px;color:var(--text3)">No sessions yet</div>`}
+      </div>
+      ${barPct!==null?`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:8px;color:var(--text3);margin-bottom:4px"><span>ELITE</span><span>BEGINNER</span></div><div class="pace-compare-bar"><div class="pace-compare-fill" style="width:${barPct}%;background:var(--hyrox)"></div><div class="pace-compare-you" style="left:${barPct}%;border-color:var(--hyrox)"></div></div></div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${s.benchmarks.map((b,i)=>`<span style="padding:3px 10px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;background:${b.c}22;color:${b.c};border:1px solid ${b.c}44;font-weight:${myLevel===i?'700':'400'}">${b.n}${myLevel===i?' ← YOU':''} · ${b.r}</span>`).join('')}</div>
+      <div style="font-size:11px;color:var(--text3);background:var(--bg3);padding:8px 12px;border-radius:6px">💡 ${s.tip}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// HYROX MODAL
+// ============================================================
+window.openHrxModal = function(stationKey) {
+  window._hrxModalStation = stationKey;
+  const s = HYROX_STATIONS[stationKey];
+  document.getElementById('hrx-modal-icon').textContent = s.icon;
+  document.getElementById('hrx-modal-name').textContent = s.name;
+  document.getElementById('hrx-modal-desc').textContent = s.desc;
+  document.getElementById('hrx-metric-label').textContent = `Auto-calculated ${s.metricLabel}`;
+  document.getElementById('hrx-damper-group').style.display = s.damper ? 'flex' : 'none';
+  const wg = document.getElementById('hrx-weight-group');
+  if (s.weight) { wg.style.display='flex'; document.getElementById('hrx-weight-label').textContent=s.wLabel; document.getElementById('hrx-weight').placeholder=s.wDefault; }
+  else { wg.style.display='none'; }
+  const d = document.getElementById('hrx-date');
+  if (!d.value) d.value = today();
+  document.getElementById('hrx-time').value='';
+  document.getElementById('hrx-damper').value='';
+  document.getElementById('hrx-weight').value='';
+  document.getElementById('hrx-notes').value='';
+  document.getElementById('hrx-auto-metric').innerHTML=`<span style="opacity:0.4">Enter time above</span>`;
+  document.getElementById('hrx-modal-overlay').classList.add('open');
+}
+
+window.closeHrxModal = function() { document.getElementById('hrx-modal-overlay').classList.remove('open'); }
+
+window.updateHrxCalc = function() {
+  const key = window._hrxModalStation;
+  if (!key) return;
+  const t = document.getElementById('hrx-time').value.trim();
+  const secs = parseTime(t);
+  const el = document.getElementById('hrx-auto-metric');
+  if (!secs) { el.innerHTML=`<span style="opacity:0.4">Enter time above</span>`; return; }
+  const metric = hrxCalcMetric(key, secs);
+  if (metric) el.innerHTML = `⚡ <strong>${metric.value}</strong> <span style="color:var(--text3)">${metric.label}</span>`;
+  else el.innerHTML = `<span style="opacity:0.4">—</span>`;
+}
+
+window.saveHrx = async function() {
+  const key = window._hrxModalStation;
+  const date = document.getElementById('hrx-date').value;
+  const time = document.getElementById('hrx-time').value.trim();
+  const damper = document.getElementById('hrx-damper').value;
+  const weight = document.getElementById('hrx-weight').value;
+  const notes = document.getElementById('hrx-notes').value.trim();
+  if (!date||!time) { alert('Please fill in date and time.'); return; }
+  const secs = parseTime(time);
+  if (!secs) { alert('Invalid time format. Use mm:ss'); return; }
+  const s = HYROX_STATIONS[key];
+  const metric = hrxCalcMetric(key, secs);
+  const data = { station:key, date, time, notes, ...(damper&&{damper:parseInt(damper)}), ...(weight&&{weight:parseFloat(weight)}), ...(metric&&{metric:metric.value, metricLabel:metric.label}) };
+  if (window._firestore) {
+    const { hyroxCol, addDoc, serverTimestamp } = window._firestore;
+    await addDoc(hyroxCol, { ...data, createdAt: serverTimestamp() });
+  } else {
+    window.hyroxSessions.push({ ...data, _id: Date.now().toString() });
+    renderHyrox();
+  }
+  closeHrxModal();
+  showNotif(`${s.icon} ${s.name} logged!`, `${time}${metric?` · ${metric.value} ${metric.label}`:''}`);
+}
+
+window.deleteHrx = async function(id) {
+  if (!confirm('Delete this session?')) return;
+  if (window._firestore) {
+    const { db, deleteDoc, doc } = window._firestore;
+    await deleteDoc(doc(db, 'hyrox', id));
+    showNotif('Session deleted','Hyrox session removed.');
+  }
+}
+
+document.getElementById('hrx-modal-overlay').addEventListener('click', function(e) { if (e.target===this) closeHrxModal(); });
 </script>
+
 </body>
 </html>
